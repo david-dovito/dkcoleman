@@ -28,8 +28,12 @@ export function ContentEditor({ token, workerUrl }: ContentEditorProps) {
         setLoading(true);
         try {
             const res = await fetch(`${workerUrl}/api/content`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: {
+                    'X-Requested-With': 'mncoleman-admin'
+                },
+                credentials: 'include'
             });
+
             if (!res.ok) throw new Error('Failed to fetch content');
 
             const data = await res.json();
@@ -52,8 +56,9 @@ export function ContentEditor({ token, workerUrl }: ContentEditorProps) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'X-Requested-With': 'mncoleman-admin'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     content: JSON.stringify(content, null, 2),
                     sha,
@@ -79,6 +84,7 @@ export function ContentEditor({ token, workerUrl }: ContentEditorProps) {
     const handleChange = (key: string, value: string) => {
         setContent((prev: any) => ({ ...prev, [key]: value }));
     };
+
 
     if (loading) return <div className="p-4"><Loader2 className="animate-spin" /> Loading content...</div>;
     if (!content) return null;
