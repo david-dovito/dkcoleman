@@ -6,14 +6,14 @@
 
 A modern, minimalist information hub featuring blog, resources, and professional resume—all powered by Notion CMS and Next.js.
 
-[![Deploy to GitHub Pages](https://github.com/slider003/matthew-coleman/actions/workflows/deploy.yml/badge.svg)](https://github.com/slider003/matthew-coleman/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/mncoleman/matthew-coleman/actions/workflows/deploy.yml/badge.svg)](https://github.com/mncoleman/matthew-coleman/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Notion](https://img.shields.io/badge/CMS-Notion-black?logo=notion)](https://www.notion.so/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?logo=tailwind-css)](https://tailwindcss.com/)
 
-[Live Demo](https://slider003.github.io/matthew-coleman/) · [Report Bug](https://github.com/slider003/matthew-coleman/issues) · [Request Feature](https://github.com/slider003/matthew-coleman/issues)
+[Live Demo](https://mncoleman.github.io/matthew-coleman/) · [Report Bug](https://github.com/mncoleman/matthew-coleman/issues) · [Request Feature](https://github.com/mncoleman/matthew-coleman/issues)
 
 </div>
 
@@ -26,6 +26,7 @@ A modern, minimalist information hub featuring blog, resources, and professional
 <td width="50%">
 
 ### 🎨 Design & UX
+
 - **WebGL Background** - Animated Dark Veil effect
 - **Frosted Glass UI** - Modern glassmorphism design
 - **Bento Grid Layout** - Clean, responsive information hub
@@ -37,6 +38,7 @@ A modern, minimalist information hub featuring blog, resources, and professional
 <td width="50%">
 
 ### ⚡ Performance & Tech
+
 - **Static Generation** - Lightning-fast pre-rendered pages
 - **Type Safety** - Full TypeScript coverage
 - **Zero Runtime** - 100% static export
@@ -72,7 +74,7 @@ A modern, minimalist information hub featuring blog, resources, and professional
 
 ```bash
 # Clone the repository
-git clone https://github.com/slider003/matthew-coleman.git
+git clone https://github.com/mncoleman/matthew-coleman.git
 cd matthew-coleman
 
 # Install dependencies
@@ -107,7 +109,30 @@ NOTION_RESUME_PAGE_ID=your_resume_page_id
 NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 ```
 
-### Notion Setup
+### Notion CMS Template (Quick Start)
+
+**🎯 Use the pre-configured template to get started instantly:**
+
+[![Duplicate Notion Template](https://img.shields.io/badge/Duplicate-Notion%20Template-black?logo=notion)](https://matthewcoleman.notion.site/Personal-Site-CMS-Template-2eac6cc793dc80789468f171f49604f3)
+
+**What's Included:**
+
+- ✅ **Blog Database** - Pre-configured with all required properties (Title, Slug, Date, Tags, Published, Featured, Excerpt, Author)
+- ✅ **Resources Database** - Ready-to-use link library (Name, URL, Category, Description, Published)
+- ✅ **Resume Page** - Formatted resume template with markdown blocks
+- ✅ **Sample Content** - Example posts and resources to demonstrate the structure
+
+**How to Use:**
+
+1. Click the template link above and select "Duplicate" in the top-right corner
+2. Create a Notion integration at [notion.so/my-integrations](https://www.notion.so/my-integrations)
+3. Share all three databases/pages with your integration
+4. Copy the database/page IDs from the URLs and add to `.env.local`
+5. Copy your integration token (starts with `ntn_`) to `.env.local`
+
+### Manual Notion Setup (Without Template)
+
+If you prefer to set up manually:
 
 1. **Create a Notion Integration**
    - Go to [notion.so/my-integrations](https://www.notion.so/my-integrations)
@@ -154,6 +179,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 </table>
 
 **Core Technologies:**
+
 - **Framework**: Next.js 16 (App Router) with static export
 - **Language**: TypeScript 5.0
 - **Styling**: Tailwind CSS + shadcn/ui components
@@ -162,6 +188,132 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 - **Deployment**: GitHub Pages with GitHub Actions
 - **Analytics**: Google Analytics 4 via `@next/third-parties`
 - **PWA**: Service worker with app manifest
+
+---
+
+## 🔧 How It Works: Notion CMS + Static Site Architecture
+
+This site uses a unique architecture that combines **Notion's powerful CMS** with **100% static hosting** on GitHub Pages. Here's how it works:
+
+### The Build-Time CMS Approach
+
+Unlike traditional CMS platforms that require a server to fetch content on every page load, this site fetches all content from Notion **once during the build process** and generates static HTML files.
+
+```
+┌─────────────┐      Build Time        ┌──────────────┐      Deploy        ┌─────────────┐
+│   Notion    │ ──────────────────────>│  Next.js     │ ────────────────> │   GitHub    │
+│  Databases  │   Fetch via API        │  Static      │   Upload HTML     │   Pages     │
+│             │   Convert to Markdown  │  Generation  │   (out/ folder)   │  (Hosting)  │
+└─────────────┘                        └──────────────┘                    └─────────────┘
+     ↓                                         ↓                                  ↓
+  Content                                  Pre-render                         Fast Delivery
+  Management                               All Pages                          No Server Needed
+```
+
+### Benefits of This Approach
+
+| Benefit | Description |
+|---------|-------------|
+| 🚀 **Lightning Fast** | No API calls at runtime - all content is pre-rendered as HTML |
+| 💰 **Zero Cost Hosting** | Static files hosted free on GitHub Pages |
+| 🔒 **Secure** | No server to hack, no databases to breach |
+| 📝 **Easy Content Management** | Write in Notion's beautiful editor with rich formatting |
+| 🌍 **Global CDN** | GitHub Pages automatically distributes your site globally |
+| 📱 **Works Offline** | PWA-ready static files can be cached for offline use |
+
+### How Content Updates Work
+
+**1. Edit Content in Notion**
+
+- Open your Notion workspace
+- Update blog posts, resources, or resume
+- Changes are saved in Notion immediately
+
+**2. Trigger a Rebuild**
+
+- **Automatic**: GitHub Actions rebuilds daily at 6:00 AM UTC
+- **Manual**: Trigger deployment from GitHub Actions tab
+- **On Push**: Any commit to `main` branch triggers rebuild
+
+**3. Build Process**
+
+```bash
+npm run build
+```
+
+- Next.js fetches latest content from Notion API
+- Converts Notion blocks to Markdown using `notion-to-md`
+- Generates static HTML files for all pages
+- Outputs to `out/` directory
+
+**4. Deploy to GitHub Pages**
+
+- GitHub Actions uploads `out/` folder to `gh-pages` branch
+- Site updates at your custom domain
+- **No downtime** - atomic deployment
+
+### Why This Architecture?
+
+**Traditional CMS (WordPress, etc.)**
+
+```
+User Request → Server → Database Query → Render HTML → Send to User
+❌ Slow (database queries on every request)
+❌ Expensive (requires hosting server)
+❌ Security risks (server + database vulnerabilities)
+```
+
+**This Site (Notion + Static)**
+
+```
+User Request → CDN → Serve Pre-rendered HTML → Done
+✅ Fast (no server processing)
+✅ Free (static file hosting)
+✅ Secure (no server to attack)
+```
+
+### Key Technical Details
+
+**Data Fetching** (`lib/notion.ts`)
+
+- Uses `@notionhq/client` to query Notion databases
+- Fetches only published content (filtered by "Published" checkbox)
+- Gracefully falls back to sample data if Notion credentials are missing
+
+**Markdown Conversion** (`notion-to-md`)
+
+- Converts Notion's block structure to Markdown
+- Preserves formatting (bold, italic, links, code blocks)
+- Handles images, lists, headings, and more
+
+**Static Generation** (Next.js `output: 'export'`)
+
+- Pre-renders all pages at build time
+- No server-side rendering (SSR) or API routes
+- Pure HTML/CSS/JS files
+
+**Content Refresh**
+
+- Daily automatic rebuilds keep content fresh
+- Notion webhook support could enable real-time updates (future enhancement)
+- For now, content updates require rebuild (15-30 seconds)
+
+### Trade-offs
+
+**Advantages:**
+
+- ✅ Blazing fast performance
+- ✅ Free hosting
+- ✅ No server maintenance
+- ✅ Easy content editing in Notion
+
+**Limitations:**
+
+- ⏱️ Content updates require rebuild (~1-2 minutes)
+- 🔄 Not real-time (scheduled or manual deploys)
+- 📊 Build-time only (can't fetch data from browsers)
+
+For most blogs and portfolios, these trade-offs are worth it for the **speed, cost savings, and security benefits**.
 
 ---
 
@@ -299,6 +451,7 @@ Edit your Notion resume page directly. Content converts to markdown automaticall
 **Automatic**: Daily at 6:00 AM UTC via GitHub Actions
 
 **Manual**:
+
 - GitHub Actions: Actions tab → "Deploy to GitHub Pages" → Run workflow
 - Admin Dashboard: Visit `/admin` (links to GitHub Actions)
 
@@ -342,7 +495,7 @@ npm run build       # Generate static site (out/)
 # Deploy to GitHub Pages
 ```
 
-The site will be available at: `https://slider003.github.io/matthew-coleman/`
+The site will be available at: `https://mncoleman.github.io/matthew-coleman/`
 
 ---
 
@@ -367,6 +520,7 @@ The site will be available at: `https://slider003.github.io/matthew-coleman/`
 - Trigger manual rebuild via GitHub Actions
 - Review build logs for Notion API errors
 - Ensure Notion integration has database access
+
 </details>
 
 <details>
@@ -376,6 +530,7 @@ The site will be available at: `https://slider003.github.io/matthew-coleman/`
 - Check browser console for WebGL errors
 - Ensure browser supports WebGL 2.0
 - Verify `overflow-x: hidden` in globals.css
+
 </details>
 
 <details>
@@ -385,6 +540,7 @@ The site will be available at: `https://slider003.github.io/matthew-coleman/`
 - Check Notion token starts with `ntn_` (not `secret_`)
 - Ensure Notion databases are shared with integration
 - Review Actions logs for specific error messages
+
 </details>
 
 <details>
@@ -394,6 +550,7 @@ The site will be available at: `https://slider003.github.io/matthew-coleman/`
 - For permanent images, upload to `/public`
 - Reference with base path: `/matthew-coleman/image.jpg`
 - Use Next.js `Image` component with `unoptimized` prop
+
 </details>
 
 <details>
@@ -403,6 +560,7 @@ The site will be available at: `https://slider003.github.io/matthew-coleman/`
 - Rebuild required after changing `.env.local`
 - GitHub Secrets are only available in Actions builds
 - Verify no typos in variable names
+
 </details>
 
 ---
@@ -437,8 +595,8 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Matthew Coleman**
 
-- Website: [slider003.github.io/matthew-coleman](https://slider003.github.io/matthew-coleman/)
-- GitHub: [@slider003](https://github.com/slider003)
+- Website: [mncoleman.github.io/matthew-coleman/](https://mncoleman.github.io/matthew-coleman/)
+- GitHub: [@mncoleman](https://github.com/mncoleman)
 
 ---
 
