@@ -31,8 +31,8 @@ export const viewport: Viewport = {
 const basePath = '';
 
 export const metadata: Metadata = {
-  title: 'Matthew Coleman - Information Hub',
-  description: 'Personal information hub with blog, resources, and resume by Matthew Coleman',
+  title: 'Matthew Coleman',
+  description: 'Personal website with blog, resources, and resume by Matthew Coleman',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -122,7 +122,7 @@ export default async function RootLayout({
               <MobileNav />
 
               <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-4xl">
+                <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-5xl">
                   {/* Logo / Brand */}
                   <Link href="/" className="font-semibold text-lg hover:text-muted-foreground transition-colors group flex items-center">
                     Matthew Coleman
@@ -160,7 +160,7 @@ export default async function RootLayout({
 
                 <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground max-w-4xl space-y-2">
                   <div>
-                    © 2003-{new Date().getFullYear()} Matthew Coleman (aka Teo: pronounced 'Tay-oh'). All rights reserved - and I mean all of them.
+                    © 2003-{new Date().getFullYear()} Matthew Coleman. All rights reserved.
                   </div>
                   <div>
                     <Link href="/brand-kit" className="hover:text-primary transition-colors hover:underline underline-offset-4">
