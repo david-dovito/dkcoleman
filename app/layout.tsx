@@ -135,7 +135,7 @@ export default async function RootLayout({
         <PWAInstall />
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

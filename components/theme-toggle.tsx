@@ -3,27 +3,24 @@
 import * as React from 'react';
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { usePathname } from 'next/navigation';
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+  const pathname = usePathname();
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return (
-      <button className="h-9 w-9 rounded-md border border-input bg-transparent hover:bg-accent hover:text-accent-foreground">
-        <span className="sr-only">Toggle theme</span>
-      </button>
-    );
-  }
+  // Hide on home page (dark veil forces dark mode there)
+  if (!mounted || pathname === '/') return null;
 
   return (
     <button
       onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      className="h-9 w-9 rounded-md border border-input bg-transparent hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center"
+      className="h-9 w-9 rounded-md bg-transparent hover:bg-accent hover:text-accent-foreground inline-flex items-center justify-center transition-colors"
     >
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
