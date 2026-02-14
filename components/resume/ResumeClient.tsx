@@ -69,13 +69,18 @@ function ExperienceCard({ title, company, meta, description, achievements, defau
 }) {
     const [open, setOpen] = useState(defaultOpen);
     const contentRef = useRef<HTMLDivElement>(null);
-    const [contentHeight, setContentHeight] = useState(0);
+    const [contentHeight, setContentHeight] = useState<number | 'auto'>(defaultOpen ? 'auto' : 0);
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
 
     useEffect(() => {
         if (contentRef.current) {
             setContentHeight(contentRef.current.scrollHeight);
         }
-    }, [open]);
+    }, [open, hasMounted]);
 
     return (
         <Reveal delay={delay}>
@@ -101,7 +106,7 @@ function ExperienceCard({ title, company, meta, description, achievements, defau
                 {achievements && achievements.length > 0 && (
                     <div
                         className="overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        style={{ maxHeight: open ? `${contentHeight}px` : '0px', opacity: open ? 1 : 0 }}
+                        style={{ maxHeight: open ? (contentHeight === 'auto' ? 'none' : `${contentHeight}px`) : '0px', opacity: open ? 1 : 0 }}
                     >
                         <div ref={contentRef}>
                             <div className="h-px bg-border/50 my-4" />

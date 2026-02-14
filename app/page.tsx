@@ -23,7 +23,7 @@ const bentoCards = [
     id: 'projects',
     title: "Things I've Made",
     description:
-      'A collection of projects, experiments, and tools (mostly built with AI).',
+      'A collection of projects, experiments, and tools — oftentimes with AI.',
     label: 'Portfolio',
     icon: Code2,
     span: 'md:col-span-1 md:row-span-1',

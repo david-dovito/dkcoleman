@@ -7,6 +7,7 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { MobileNav } from '@/components/mobile-nav';
 import { HamburgerButton } from '@/components/hamburger-button';
 import CustomCursor from '@/components/ui/CustomCursor';
+import SignupPopup from '@/components/ui/signup-popup';
 import { ThemeWrapper } from '@/components/theme-wrapper';
 import { KeyBindings } from '@/components/key-bindings';
 import { Search, SearchItem } from '@/components/search';
@@ -177,6 +178,7 @@ export default async function RootLayout({
           </ThemeWrapper>
         </ThemeProvider>
         <CustomCursor />
+        <SignupPopup />
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}

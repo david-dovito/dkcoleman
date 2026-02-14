@@ -28,7 +28,7 @@ export async function getPublishedProjects(): Promise<Project[]> {
             {
                 id: 'sample-1',
                 name: 'Sample Project',
-                description: 'This is a sample project built with AI.',
+                description: 'This is a sample project.',
                 url: 'https://example.com',
                 tech: ['React', 'Next.js', 'Tailwind'],
                 date: new Date().toISOString(),

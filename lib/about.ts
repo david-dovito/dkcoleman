@@ -23,7 +23,7 @@ export interface AboutData {
 const SAMPLE_DATA: AboutData = {
     introduction: "Hey! I'm David. As a young, Christian, business owner and aspiring investor, I'm passionate about seeing the next generation lead well. You are loved, and you can do it. Take reading this as a sign to keep going!",
     whatIDo: "I'm passionate about encouraging today's young professionals. Whether it's starting a career, launching a business, growing a brand, or just making a life — my heart is to encourage you on your journey.",
-    thisWebsite: "Built primarily with AI (Google Gemini & Claude Sonnet), this site reflects my interest in rapid development. It's hosted on GitHub Pages and powered by a custom Notion integration for content management. Visit my GitHub to learn more.",
+    thisWebsite: "This is a statically-exported Next.js site that pulls all its content from a headless Notion CMS via API at build time — no server, no runtime dependencies, just pre-rendered HTML served from GitHub Pages. The animated background is a custom WebGL fragment shader running a CPPN neural network, and yes, it was built oftentimes with AI.",
     the1159: '',
 };
 
