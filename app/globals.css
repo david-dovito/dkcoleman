@@ -84,8 +84,8 @@
 
   /* Only hide cursor on devices that support hover (desktop/mouse) */
   @media (hover: hover) and (pointer: fine) {
-    body,
-    * {
+    body:not(.popup-open),
+    body:not(.popup-open) * {
       cursor: none !important;
     }
   }

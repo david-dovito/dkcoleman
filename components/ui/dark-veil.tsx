@@ -62,16 +62,16 @@ void mainImage(out vec4 fragColor,in vec2 fragCoord){
     vec2 uv=fragCoord/uResolution.xy*2.-1.;
     uv.y*=-1.;
     uv+=uWarp*vec2(sin(uv.y*6.283+uTime*0.5),cos(uv.x*6.283+uTime*0.5))*0.05;
-    fragColor=cppn_fn(uv,0.1*sin(0.3*uTime),0.1*sin(0.69*uTime),0.1*sin(0.44*uTime));
+    fragColor=cppn_fn(uv,0.35*sin(0.3*uTime),0.35*sin(0.69*uTime),0.35*sin(0.44*uTime));
 }
 
 void main(){
     vec4 col;mainImage(col,gl_FragCoord.xy);
     float lum=dot(col.rgb,vec3(0.299,0.587,0.114));
-    vec3 c0=vec3(0.015,0.02,0.018);
-    vec3 c1=vec3(0.05,0.08,0.055);
-    vec3 c2=vec3(0.14,0.22,0.15);
-    vec3 c3=vec3(0.24,0.36,0.26);
+    vec3 c0=vec3(0.024,0.045,0.026);
+    vec3 c1=vec3(0.09,0.179,0.102);
+    vec3 c2=vec3(0.192,0.352,0.211);
+    vec3 c3=vec3(0.32,0.512,0.333);
     vec3 tinted=mix(mix(mix(c0,c1,smoothstep(0.0,0.33,lum)),c2,smoothstep(0.33,0.66,lum)),c3,smoothstep(0.66,1.0,lum));
     float scanline_val=sin(gl_FragCoord.y*uScanFreq)*0.5+0.5;
     tinted*=1.-(scanline_val*scanline_val)*uScan;

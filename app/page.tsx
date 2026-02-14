@@ -249,7 +249,7 @@ export default function Home() {
 
   return (
     <>
-      <DarkVeil hueShift={100} speed={0.5} resolutionScale={0.8} />
+      <DarkVeil hueShift={100} speed={1.0} warpAmount={1.0} resolutionScale={0.8} />
       {mode === 'desktop' && <DesktopGrid />}
       {mode === 'mobile' && <MobileStack />}
     </>

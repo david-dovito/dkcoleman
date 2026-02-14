@@ -7,6 +7,16 @@ const CustomCursor = () => {
     const cursorDotRef = useRef<HTMLDivElement>(null);
     const cursorRingRef = useRef<HTMLDivElement>(null);
     const [isVisible, setIsVisible] = useState(false);
+    const [isHidden, setIsHidden] = useState(false);
+
+    // Hide custom cursor when popup is open (body.popup-open)
+    useEffect(() => {
+        const observer = new MutationObserver(() => {
+            setIsHidden(document.body.classList.contains('popup-open'));
+        });
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+        return () => observer.disconnect();
+    }, []);
 
     useEffect(() => {
         // Hide on touch devices or devices without hover
@@ -53,8 +63,8 @@ const CustomCursor = () => {
 
         const animate = () => {
             // Lerp for ring
-            ringX += (mouseX - ringX) * 0.15;
-            ringY += (mouseY - ringY) * 0.15;
+            ringX += (mouseX - ringX) * 0.55;
+            ringY += (mouseY - ringY) * 0.55;
 
             ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
 
@@ -79,6 +89,8 @@ const CustomCursor = () => {
         };
     }, [isVisible]);
 
+    const showCursor = isVisible && !isHidden;
+
     return (
         <>
             {/* Inner Dot */}
@@ -86,7 +98,7 @@ const CustomCursor = () => {
                 ref={cursorDotRef}
                 className={cn(
                     "pointer-events-none fixed left-0 top-0 z-[10001] h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-foreground opacity-0 transition-opacity duration-300",
-                    isVisible && "opacity-100"
+                    showCursor && "opacity-100"
                 )}
             />
             {/* Outer Ring */}
@@ -94,7 +106,7 @@ const CustomCursor = () => {
                 ref={cursorRingRef}
                 className={cn(
                     "pointer-events-none fixed left-0 top-0 z-[10001] h-8 w-8 -translate-x-1/2 -translate-y-1/2 rounded-full border border-foreground opacity-0 transition-opacity duration-300 will-change-transform",
-                    isVisible && "opacity-100"
+                    showCursor && "opacity-100"
                 )}
             />
         </>

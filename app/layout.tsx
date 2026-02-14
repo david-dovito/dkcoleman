@@ -9,6 +9,7 @@ import { HamburgerButton } from '@/components/hamburger-button';
 import CustomCursor from '@/components/ui/CustomCursor';
 import { Nav1159Button } from '@/components/nav-1159';
 import { ThemeWrapper } from '@/components/theme-wrapper';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 import { KeyBindings } from '@/components/key-bindings';
 import { Search, SearchItem } from '@/components/search';
@@ -35,6 +36,27 @@ const basePath = '';
 export const metadata: Metadata = {
   title: 'David Coleman',
   description: 'Personal website with blog, resources, and resume by David Coleman',
+  openGraph: {
+    title: 'David Coleman',
+    description: 'Personal website with blog, resources, and resume by David Coleman',
+    url: 'https://dkcoleman.com',
+    siteName: 'dkcoleman',
+    images: [
+      {
+        url: 'https://dkcoleman.com/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'David Coleman',
+      },
+    ],
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'David Coleman',
+    description: 'Personal website with blog, resources, and resume by David Coleman',
+    images: ['https://dkcoleman.com/og-image.jpg'],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -155,6 +177,7 @@ export default async function RootLayout({
                     <div className="h-4 w-[1px] bg-border mx-2" />
                     <Nav1159Button kbdClass="ml-2 hidden lg:inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border rounded bg-muted/50 text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary" />
                     <Search items={searchItems} />
+                    <ThemeToggle />
                   </nav>
 
                   {/* Mobile Hamburger Button */}

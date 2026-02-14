@@ -40,17 +40,28 @@ export default function SignupPopup() {
         }, 300);
     }, []);
 
+    // Toggle body class to disable custom cursor when popup is open
+    useEffect(() => {
+        if (visible && !closing) {
+            document.body.classList.add('popup-open');
+        } else if (!visible) {
+            document.body.classList.remove('popup-open');
+        }
+        return () => { document.body.classList.remove('popup-open'); };
+    }, [visible, closing]);
+
     useEffect(() => {
         const handleOpen = () => setVisible(true);
         window.addEventListener(OPEN_EVENT, handleOpen);
 
         const handleKey = (e: KeyboardEvent) => {
+            // Always allow Escape to close
+            if (e.key === 'Escape' && visible) { close(); return; }
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
             if (e.key === '1') {
                 e.preventDefault();
                 setVisible(v => !v);
             }
-            if (e.key === 'Escape' && visible) close();
         };
         window.addEventListener('keydown', handleKey);
 
@@ -72,24 +83,25 @@ export default function SignupPopup() {
                 className={`fixed z-[9999] inset-0 flex items-center justify-center p-4 pointer-events-none transition-all duration-300 ${closing ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
             >
                 <div
-                    className="relative w-full max-w-sm pointer-events-auto rounded-2xl border border-border/30 bg-background backdrop-blur-xl shadow-2xl overflow-hidden"
+                    className="relative w-full max-w-sm pointer-events-auto rounded-2xl border border-white/10 bg-black shadow-2xl overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <button
                         onClick={close}
-                        className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        className="absolute top-3 right-3 z-10 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-neutral-400 hover:text-white transition-colors"
                         aria-label="Close"
                     >
                         <X className="w-4 h-4" />
                     </button>
                     <div className="px-6 pt-6 pb-2 text-center">
-                        <h2 className="text-xl font-bold tracking-tight">The 1159: An Email to Encourage</h2>
-                        <p className="text-sm text-muted-foreground mt-1">You don&apos;t need to do it alone. Let&apos;s learn and grow together!</p>
-                        <p className="text-xs text-muted-foreground/60 mt-2">Sign up to receive a weekly encouragement email from David Coleman. No spam, just a quick note to start your week.</p>
+                        <h2 className="text-xl font-bold tracking-tight text-white">The 1159: An Email to Encourage</h2>
+                        <p className="text-sm text-neutral-400 mt-1">You don&apos;t need to do it alone. Let&apos;s learn and grow together!</p>
+                        <p className="text-xs text-neutral-500 mt-2">Sign up to receive a weekly encouragement email from David Coleman. No spam, just a quick note to start your week.</p>
                     </div>
                     <iframe
                         src="https://api.dovito.com/widget/form/5szVTLRB1KReKENh0Qjv"
-                        style={{ width: '100%', height: '260px', border: 'none', borderRadius: '0 0 16px 16px', colorScheme: 'auto' }}
+                        className="invert hue-rotate-180"
+                        style={{ width: '100%', height: '260px', border: 'none', borderRadius: '0 0 16px 16px' }}
                         id="popup-5szVTLRB1KReKENh0Qjv"
                         data-layout="{'id':'INLINE'}"
                         data-trigger-type="alwaysShow"

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { openSignupPopup } from '@/components/ui/signup-popup';
+import { useTheme } from 'next-themes';
+import { Moon, Sun } from 'lucide-react';
 
 const navLinks = [
     { href: '/', label: 'Home' },
@@ -19,6 +21,7 @@ export function MobileNav() {
     const [isOpen, setIsOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const pathname = usePathname();
+    const { theme, setTheme } = useTheme();
     const toggleMenu = () => {
         if (isOpen) {
             closeMenu();
@@ -117,6 +120,23 @@ export function MobileNav() {
                             }}
                         >
                             <span className="font-medium whitespace-nowrap">1159</span>
+                        </button>
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            className={`w-40 px-6 py-3 rounded-full backdrop-blur-xl border shadow-xl hover:scale-105 transition-all duration-300 text-center bg-transparent border-border/50 hover:border-primary/30 hover:shadow-primary/20 flex items-center justify-center gap-2 ${
+                                isClosing
+                                    ? 'animate-[slideOut_0.25s_ease-in_forwards]'
+                                    : 'animate-[slideIn_0.25s_ease-out_forwards]'
+                            }`}
+                            style={{
+                                animationDelay: `${(navLinks.length + 1) * 50}ms`,
+                                opacity: isClosing ? 1 : 0
+                            }}
+                        >
+                            <Sun className="h-4 w-4 dark:hidden" />
+                            <Moon className="h-4 w-4 hidden dark:block" />
+                            <span className="font-medium whitespace-nowrap">{theme === 'dark' ? 'Light' : 'Dark'}</span>
                         </button>
                     </div>
                 </div>
