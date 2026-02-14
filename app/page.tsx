@@ -10,9 +10,9 @@ import ScrollFloat from '@/components/ScrollFloat';
 const bentoCards = [
   {
     id: 'hero',
-    title: 'Matthew Coleman',
+    title: 'David Coleman',
     description:
-      'Welcome to my personal website. I write about technology, share resources, and document my life journey.',
+      'Encouraging today\'s young professionals. I write about faith, business, and the journey of leading well.',
     label: 'Introduction',
     span: 'md:col-span-2 md:row-span-1',
     link: '/about',
@@ -249,7 +249,7 @@ export default function Home() {
 
   return (
     <>
-      <DarkVeil hueShift={40} speed={0.5} resolutionScale={0.8} />
+      <DarkVeil hueShift={100} speed={0.5} resolutionScale={0.8} />
       {mode === 'desktop' && <DesktopGrid />}
       {mode === 'mobile' && <MobileStack />}
     </>

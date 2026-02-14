@@ -5,8 +5,8 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // basePath removed for custom domain (mncoleman.com)
-  // Previously: '/matthew-coleman' for GitHub Pages subpath
+  // basePath removed for custom domain (dkcoleman.com)
+  // Previously: '/dkcoleman' for GitHub Pages subpath
   trailingSlash: true,
 };
 

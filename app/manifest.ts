@@ -7,9 +7,9 @@ const basePath = '';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Matthew Coleman',
-    short_name: 'mncoleman',
-    description: 'Personal website with blog, resources, and resume by Matthew Coleman',
+    name: 'David Coleman',
+    short_name: 'dkcoleman',
+    description: 'Personal website with blog, resources, and resume by David Coleman',
     start_url: basePath || '/',
     display: 'standalone',
     background_color: '#09090b',

@@ -23,7 +23,7 @@ export function AdminDashboard({ token, user, workerUrl, onLogout }: AdminDashbo
         try {
             const headers: Record<string, string> = {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'mncoleman-admin'
+                'X-Requested-With': 'dkcoleman-admin'
             };
             if (token && token !== 'cookie-managed') {
                 headers['Authorization'] = `Bearer ${token}`;

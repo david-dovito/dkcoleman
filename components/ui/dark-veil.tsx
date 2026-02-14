@@ -67,11 +67,16 @@ void mainImage(out vec4 fragColor,in vec2 fragCoord){
 
 void main(){
     vec4 col;mainImage(col,gl_FragCoord.xy);
-    col.rgb=hueShiftRGB(col.rgb,uHueShift);
+    float lum=dot(col.rgb,vec3(0.299,0.587,0.114));
+    vec3 c0=vec3(0.015,0.015,0.018);
+    vec3 c1=vec3(0.04,0.05,0.04);
+    vec3 c2=vec3(0.10,0.14,0.11);
+    vec3 c3=vec3(0.16,0.22,0.18);
+    vec3 tinted=mix(mix(mix(c0,c1,smoothstep(0.0,0.33,lum)),c2,smoothstep(0.33,0.66,lum)),c3,smoothstep(0.66,1.0,lum));
     float scanline_val=sin(gl_FragCoord.y*uScanFreq)*0.5+0.5;
-    col.rgb*=1.-(scanline_val*scanline_val)*uScan;
-    col.rgb+=(rand(gl_FragCoord.xy+uTime)-0.5)*uNoise;
-    gl_FragColor=vec4(clamp(col.rgb,0.0,1.0),1.0);
+    tinted*=1.-(scanline_val*scanline_val)*uScan;
+    tinted+=(rand(gl_FragCoord.xy+uTime)-0.5)*uNoise;
+    gl_FragColor=vec4(clamp(tinted,0.0,1.0),1.0);
 }
 `;
 
@@ -165,7 +170,7 @@ export default function DarkVeil({
         width: '100vw',
         height: '100vh',
         display: 'block',
-        zIndex: 0
+        zIndex: -1
 
       }}
     />

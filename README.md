@@ -1,19 +1,19 @@
 <div align="center">
 
-# Matthew Coleman
+# David Coleman
 
 ### Personal Website
 
 A modern, minimalist personal website featuring blog, resources, and professional resume—all powered by Notion CMS and Next.js.
 
-[![Deploy to GitHub Pages](https://github.com/mncoleman/mncoleman/actions/workflows/deploy.yml/badge.svg)](https://github.com/mncoleman/mncoleman/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/dkcoleman/dkcoleman/actions/workflows/deploy.yml/badge.svg)](https://github.com/dkcoleman/dkcoleman/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Notion](https://img.shields.io/badge/CMS-Notion-black?logo=notion)](https://www.notion.so/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8?logo=tailwind-css)](https://tailwindcss.com/)
 
-[Live Demo](https://mncoleman.github.io/mncoleman/) · [Report Bug](https://github.com/mncoleman/mncoleman/issues) · [Request Feature](https://github.com/mncoleman/mncoleman/issues)
+[Live Demo](https://dkcoleman.github.io/dkcoleman/) · [Report Bug](https://github.com/dkcoleman/dkcoleman/issues) · [Request Feature](https://github.com/dkcoleman/dkcoleman/issues)
 
 </div>
 
@@ -86,8 +86,8 @@ The site features a secure, hidden admin dashboard for managing content and depl
 
 ```bash
 # Clone the repository
-git clone https://github.com/mncoleman/mncoleman.git
-cd mncoleman
+git clone https://github.com/dkcoleman/dkcoleman.git
+cd dkcoleman
 
 # Install dependencies
 npm install
@@ -125,7 +125,7 @@ NEXT_PUBLIC_GA_ID=G-XXXXXXXXXX
 
 **🎯 Use the pre-configured template to get started instantly:**
 
-[![Duplicate Notion Template](https://img.shields.io/badge/Duplicate-Notion%20Template-black?logo=notion)](https://matthewcoleman.notion.site/Personal-Site-CMS-Template-2eac6cc793dc80789468f171f49604f3)
+[![Duplicate Notion Template](https://img.shields.io/badge/Duplicate-Notion%20Template-black?logo=notion)](https://davidcoleman.notion.site/Personal-Site-CMS-Template-2eac6cc793dc80789468f171f49604f3)
 
 **What's Included:**
 
@@ -333,7 +333,7 @@ For most blogs and portfolios, these trade-offs are worth it for the **speed, co
 ## 📁 Project Structure
 
 ```
-mncoleman/
+dkcoleman/
 ├── app/                           # Next.js App Router
 │   ├── blog/                      # Blog pages
 │   │   ├── [slug]/page.tsx       # Dynamic post pages
@@ -379,7 +379,7 @@ The home page uses a responsive CSS Grid bento layout. Edit `app/page.tsx`:
 const bentoCards = [
   {
     id: 'hero',
-    title: 'Matthew Coleman',
+    title: 'David Coleman',
     description: 'Welcome to my personal website...',
     span: 'md:col-span-2 md:row-span-1',
     link: '/about',
@@ -508,7 +508,7 @@ npm run build       # Generate static site (out/)
 # Deploy to GitHub Pages
 ```
 
-The site will be available at: `https://mncoleman.github.io/mncoleman/`
+The site will be available at: `https://dkcoleman.github.io/dkcoleman/`
 
 ---
 
@@ -561,7 +561,7 @@ The site will be available at: `https://mncoleman.github.io/mncoleman/`
 
 - Notion images have expiring URLs (require rebuild)
 - For permanent images, upload to `/public`
-- Reference with base path: `/mncoleman/image.jpg`
+- Reference with base path: `/dkcoleman/image.jpg`
 - Use Next.js `Image` component with `unoptimized` prop
 
 </details>
@@ -607,10 +607,10 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 👤 Author
 
-**Matthew Coleman**
+**David Coleman**
 
-- Website: [mncoleman.github.io/mncoleman/](https://mncoleman.github.io/mncoleman/)
-- GitHub: [@mncoleman](https://github.com/mncoleman)
+- Website: [dkcoleman.github.io/dkcoleman/](https://dkcoleman.github.io/dkcoleman/)
+- GitHub: [@dkcoleman](https://github.com/dkcoleman)
 
 ---
 

@@ -295,18 +295,18 @@ export default function BrandKitClient() {
     ];
 
     const colors = [
-        { name: 'Background', hsl: '0 0% 100%', hex: '#FFFFFF', usage: 'Light mode background' },
-        { name: 'Foreground', hsl: '0 0% 3.9%', hex: '#0A0A0A', usage: 'Light mode text' },
-        { name: 'Primary', hsl: '0 0% 9%', hex: '#171717', usage: 'Primary brand elements' },
-        { name: 'Muted', hsl: '0 0% 96.1%', hex: '#F5F5F5', usage: 'Muted backgrounds' },
-        { name: 'Border', hsl: '0 0% 89.8%', hex: '#E5E5E5', usage: 'Dividers and borders' },
-        { name: 'Dark Background', hsl: '0 0% 3.9%', hex: '#0A0A0A', usage: 'Dark mode background' },
-        { name: 'Dark Foreground', hsl: '0 0% 98%', hex: '#FAFAFA', usage: 'Dark mode text' },
-        { name: 'Dark Secondary', hsl: '0 0% 14.9%', hex: '#262626', usage: 'Dark mode surfaces' },
+        { name: 'Dust Grey', hsl: '46 15% 83%', hex: '#DAD7CD', usage: 'Neutral base, light backgrounds, paper stock' },
+        { name: 'Dry Sage', hsl: '82 20% 62%', hex: '#A3B18A', usage: 'Secondary accents, supporting elements' },
+        { name: 'Fern', hsl: '119 19% 42%', hex: '#588157', usage: 'Primary brand green, CTA highlights' },
+        { name: 'Hunter Green', hsl: '131 22% 29%', hex: '#3A5A40', usage: 'Deep accent, headers, strong elements' },
+        { name: 'Pine Teal', hsl: '150 20% 25%', hex: '#344E41', usage: 'Darkest brand tone, anchor color' },
+        { name: 'Highlight', hsl: '152 28% 66%', hex: '#8FC0A9', usage: 'Digital highlights, interactive accents' },
+        { name: 'Warm White', hsl: '40 10% 98%', hex: '#FAFAF8', usage: 'Light backgrounds, print paper tone' },
+        { name: 'Forest Dark', hsl: '150 12% 6%', hex: '#0D1610', usage: 'Dark mode backgrounds' },
     ];
 
     const typography = [
-        { level: 'H1', class: 'text-4xl md:text-6xl font-black mb-4', sample: 'Matthew Coleman' },
+        { level: 'H1', class: 'text-4xl md:text-6xl font-black mb-4', sample: 'David Coleman' },
         { level: 'H2', class: 'text-3xl md:text-4xl font-bold mb-3', sample: 'Personal Website' },
         { level: 'H3', class: 'text-2xl md:text-3xl font-semibold mb-2', sample: 'Brand Guidelines' },
         { level: 'Body', class: 'text-base text-muted-foreground', sample: 'Transparent, minimalist, and functional.' },
@@ -323,7 +323,7 @@ export default function BrandKitClient() {
                     BRAND KIT
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-2xl mx-auto backdrop-blur-sm">
-                    A collection of design assets and guidelines for the Matthew Coleman brand.
+                    A collection of design assets and guidelines for the David Coleman brand.
                     Minimalist, high-performance, and elegant.
                 </p>
             </section>
@@ -337,34 +337,50 @@ export default function BrandKitClient() {
                         </div>
                         <div>
                             <CardTitle className="text-2xl">The Logo</CardTitle>
-                            <CardDescription>Official "MC" monogram and typography.</CardDescription>
+                            <CardDescription>Official wordmark and favicon.</CardDescription>
                         </div>
                     </div>
                 </CardHeader>
                 <CardContent>
                     <div className="grid md:grid-cols-2 gap-8">
-                        <div className="relative aspect-video rounded-2xl bg-black flex items-center justify-center border border-white/10 group/logo">
-                            <div className="w-24 h-24 rounded-2xl bg-[#18181b] flex items-center justify-center text-4xl font-bold text-white border border-white/20 shadow-2xl transition-transform group-hover/logo:scale-110">
-                                MC
-                            </div>
+                        <div className="relative aspect-video rounded-2xl bg-black flex items-center justify-center border border-white/10 group/logo p-8">
+                            <img src="/logo.png" alt="dkcoleman logo" className="h-12 invert transition-transform group-hover/logo:scale-110" />
                             <div className="absolute inset-x-0 bottom-4 text-center">
                                 <span className="text-xs text-white/40 font-mono tracking-widest uppercase">Dark Version</span>
                             </div>
                         </div>
-                        <div className="relative aspect-video rounded-2xl bg-white flex items-center justify-center border border-black/5 group/logo">
-                            <div className="w-24 h-24 rounded-2xl bg-white flex items-center justify-center text-4xl font-bold text-black border border-black/10 shadow-xl transition-transform group-hover/logo:scale-110">
-                                MC
-                            </div>
+                        <div className="relative aspect-video rounded-2xl bg-white flex items-center justify-center border border-black/5 group/logo p-8">
+                            <img src="/logo.png" alt="dkcoleman logo" className="h-12 transition-transform group-hover/logo:scale-110" />
                             <div className="absolute inset-x-0 bottom-4 text-center">
                                 <span className="text-xs text-black/40 font-mono tracking-widest uppercase">Light Version</span>
                             </div>
                         </div>
                     </div>
+                    <div className="mt-6 grid md:grid-cols-2 gap-8">
+                        <div className="relative aspect-video rounded-2xl bg-black flex items-center justify-center border border-white/10 group/logo p-8">
+                            <img src="/favicon.png" alt="dk favicon" className="h-16 invert transition-transform group-hover/logo:scale-110" />
+                            <div className="absolute inset-x-0 bottom-4 text-center">
+                                <span className="text-xs text-white/40 font-mono tracking-widest uppercase">Favicon - Dark</span>
+                            </div>
+                        </div>
+                        <div className="relative aspect-video rounded-2xl bg-white flex items-center justify-center border border-black/5 group/logo p-8">
+                            <img src="/favicon.png" alt="dk favicon" className="h-16 transition-transform group-hover/logo:scale-110" />
+                            <div className="absolute inset-x-0 bottom-4 text-center">
+                                <span className="text-xs text-black/40 font-mono tracking-widest uppercase">Favicon - Light</span>
+                            </div>
+                        </div>
+                    </div>
                     <div className="mt-8 flex flex-wrap gap-4">
                         <Button className="rounded-full px-6 transition-all hover:scale-105" variant="secondary" asChild>
-                            <a href="/icon.svg" download="mncoleman-logo.svg">
+                            <a href="/logo.png" download="dkcoleman-logo.png">
                                 <Download className="mr-2 h-4 w-4" />
-                                Download SVG
+                                Download Logo
+                            </a>
+                        </Button>
+                        <Button className="rounded-full px-6 transition-all hover:scale-105" variant="secondary" asChild>
+                            <a href="/favicon.png" download="dkcoleman-favicon.png">
+                                <Download className="mr-2 h-4 w-4" />
+                                Download Favicon
                             </a>
                         </Button>
                     </div>
@@ -703,7 +719,7 @@ export default function BrandKitClient() {
                                             asChild
                                         >
                                             <a
-                                                href={`https://github.com/mncoleman/mncoleman/blob/main${reactBitsComponents.find(c => c.name === selectedComponent)?.file}`}
+                                                href={`https://github.com/dkcoleman/dkcoleman/blob/main${reactBitsComponents.find(c => c.name === selectedComponent)?.file}`}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
                                             >

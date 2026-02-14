@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository Overview
 
-This is Matthew Coleman's personal website built with Next.js 16 (App Router) as a static site. It features:
+This is David Coleman's personal website built with Next.js 16 (App Router) as a static site. It features:
 
 - **Blog** - Notion-powered blog with markdown rendering
 - **Resume** - Professional resume/CV from Notion
 - **Resource Library** - Curated links to websites and resources from Notion
 
-The site is deployed to GitHub Pages at `https://mncoleman.github.io/mncoleman/`.
+The site is deployed to GitHub Pages at `https://dkcoleman.github.io/dkcoleman/`.
 
 ## Development Commands
 
@@ -46,7 +46,7 @@ NOTION_RESUME_PAGE_ID=your_resume_page_id_32_characters
 ### Next.js Configuration
 
 - **Output**: Static export (`output: 'export'`)
-- **Base Path**: `/mncoleman` in production (GitHub Pages subpath)
+- **Base Path**: `/dkcoleman` in production (GitHub Pages subpath)
 - **Images**: Unoptimized (required for static export)
 - **Trailing Slash**: Enabled for better compatibility
 
@@ -212,7 +212,7 @@ npm run lint
 
 ### Overview
 
-Transform the home page into an interactive Magic Bento grid layout that serves as an information hub for Matthew Coleman's personal website with tiles for:
+Transform the home page into an interactive Magic Bento grid layout that serves as an information hub for David Coleman's personal website with tiles for:
 
 1. **Hero/Introduction** - Name, tagline, brief intro
 2. **Blog** - Latest posts preview
@@ -449,7 +449,7 @@ In `app/layout.tsx`, update the navigation to include new pages:
 ```typescript
 <nav className="flex gap-6 items-center">
     <Link href="/" className="font-semibold text-lg hover:text-muted-foreground transition-colors">
-        Matthew Coleman
+        David Coleman
     </Link>
     <Link href="/blog" className="text-sm hover:text-muted-foreground transition-colors">
         Blog
@@ -482,7 +482,7 @@ import MagicBento from '@/components/ui/magic-bento';
 const bentoCards = [
     {
         id: 'hero',
-        title: 'Matthew Coleman',
+        title: 'David Coleman',
         description: 'Welcome to my personal website. I write about technology, share resources, and document my professional journey.',
         label: 'Introduction',
         color: '#060010',
@@ -615,7 +615,7 @@ import DarkVeil from '@/components/ui/dark-veil';
 const bentoCards = [
   {
     id: 'hero',
-    title: 'Matthew Coleman',
+    title: 'David Coleman',
     description: 'Welcome to my personal website...',
     label: 'Introduction',
     span: 'md:col-span-2 md:row-span-1',
@@ -695,7 +695,7 @@ Key features:
 
 ## Common Pitfalls
 
-1. **Base Path**: Always account for `/mncoleman` prefix in production. Use Next.js `<Link>` component for navigation.
+1. **Base Path**: Always account for `/dkcoleman` prefix in production. Use Next.js `<Link>` component for navigation.
 
 2. **Image Optimization**: Disabled for static export. Use `<img>` tags or unoptimized Next.js `<Image>` component.
 

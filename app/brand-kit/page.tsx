@@ -3,8 +3,8 @@ import BrandKitClient from '@/components/brand-kit/BrandKitClient';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Brand Kit | Matthew Coleman',
-    description: 'Official brand guidelines and assets for Matthew Coleman.',
+    title: 'Brand Kit | David Coleman',
+    description: 'Official brand guidelines and assets for David Coleman.',
 };
 
 export default function BrandKit() {

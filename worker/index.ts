@@ -11,7 +11,7 @@ export interface Env {
 
 export default {
     async fetch(request: Request, env: Env): Promise<Response> {
-        const allowedOrigins = ['https://mncoleman.com', 'https://www.mncoleman.com', 'http://localhost:3000'];
+        const allowedOrigins = ['https://dkcoleman.com', 'https://www.dkcoleman.com', 'http://localhost:3000'];
         const origin = request.headers.get('Origin');
 
         // Handle CORS preflight and standard headers
@@ -52,7 +52,7 @@ export default {
             // CSRF Protection: Check for custom header on all state-changing requests
             if (request.method !== 'GET' && request.method !== 'OPTIONS') {
                 const csrfHeader = request.headers.get('X-Requested-With');
-                if (csrfHeader !== 'mncoleman-admin') {
+                if (csrfHeader !== 'dkcoleman-admin') {
                     return new Response('Security Error: Potential CSRF attempt blocked', { status: 403, headers: corsHeaders });
                 }
             }

@@ -21,7 +21,7 @@ export default function AdminPage() {
         const checkSession = async () => {
             const storedToken = localStorage.getItem('admin_token');
             try {
-                const headers: Record<string, string> = { 'X-Requested-With': 'mncoleman-admin' };
+                const headers: Record<string, string> = { 'X-Requested-With': 'dkcoleman-admin' };
                 if (storedToken) {
                     headers['Authorization'] = `Bearer ${storedToken}`;
                 }
@@ -60,7 +60,7 @@ export default function AdminPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-Requested-With': 'mncoleman-admin'
+                    'X-Requested-With': 'dkcoleman-admin'
                 },
                 body: JSON.stringify(user),
                 credentials: 'include', // Important for Set-Cookie (fallback)
@@ -88,7 +88,7 @@ export default function AdminPage() {
     const handleLogout = async () => {
         const storedToken = localStorage.getItem('admin_token');
         try {
-            const headers: Record<string, string> = { 'X-Requested-With': 'mncoleman-admin' };
+            const headers: Record<string, string> = { 'X-Requested-With': 'dkcoleman-admin' };
             if (storedToken) {
                 headers['Authorization'] = `Bearer ${storedToken}`;
             }

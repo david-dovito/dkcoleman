@@ -12,12 +12,12 @@ This guide will walk you through setting up the secure admin dashboard for your 
 
 1. Open Telegram and search for **@BotFather**.
 2. Send the command `/newbot`.
-3. Follow the prompts to name your bot (e.g., "MNColeman Admin Bot") and give it a username (e.g., `mncoleman_admin_bot`).
+3. Follow the prompts to name your bot (e.g., "DKColeman Admin Bot") and give it a username (e.g., `dkcoleman_admin_bot`).
 4. **Important**: Save the **HTTP API Token** shown. You will need this later.
 5. Set the domain for the login widget:
     - Send `/setdomain` to @BotFather.
     - Select your bot.
-    - Enter your website domain: `https://mncoleman.github.io` (or your custom domain if you have one linked).
+    - Enter your website domain: `https://dkcoleman.github.io` (or your custom domain if you have one linked).
     - If you want to test on localhost, you'll need to use a tunneling service like ngrok, as Telegram doesn't support `localhost` directly for the widget.
 
 ## Step 2: Deploy the Cloudflare Worker
@@ -66,8 +66,8 @@ The worker acts as the secure gatekeeper.
     ```toml
     [vars]
     ALLOWED_USER_ID = "12345678" # Your ID
-    GITHUB_REPO_OWNER = "mncoleman"
-    GITHUB_REPO_NAME = "mncoleman"
+    GITHUB_REPO_OWNER = "dkcoleman"
+    GITHUB_REPO_NAME = "dkcoleman"
     ```
 
 5. Deploy the worker:
@@ -76,7 +76,7 @@ The worker acts as the secure gatekeeper.
     npx wrangler deploy
     ```
 
-6. Note the **Worker URL** output (e.g., `https://mncoleman-admin-auth.yourname.workers.dev`).
+6. Note the **Worker URL** output (e.g., `https://dkcoleman-admin-auth.yourname.workers.dev`).
 
 ## Step 3: Configure the Frontend
 
@@ -88,8 +88,8 @@ The worker acts as the secure gatekeeper.
     You can create a `.env.production` file:
 
     ```env
-    NEXT_PUBLIC_WORKER_URL=https://mncoleman-admin-auth.yourname.workers.dev
-    NEXT_PUBLIC_TELEGRAM_BOT_NAME=mncoleman_admin_bot
+    NEXT_PUBLIC_WORKER_URL=https://dkcoleman-admin-auth.yourname.workers.dev
+    NEXT_PUBLIC_TELEGRAM_BOT_NAME=dkcoleman_admin_bot
     ```
 
 3. Or verify `app/admin/page.tsx` uses:

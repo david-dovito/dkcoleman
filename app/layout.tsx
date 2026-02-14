@@ -23,7 +23,7 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#ffffff' },
-    { media: '(prefers-color-scheme: dark)', color: '#18181b' },
+    { media: '(prefers-color-scheme: dark)', color: '#0a0a0a' },
   ],
 };
 
@@ -31,18 +31,18 @@ export const viewport: Viewport = {
 const basePath = '';
 
 export const metadata: Metadata = {
-  title: 'Matthew Coleman',
-  description: 'Personal website with blog, resources, and resume by Matthew Coleman',
+  title: 'David Coleman',
+  description: 'Personal website with blog, resources, and resume by David Coleman',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'mncoleman',
+    title: 'dkcoleman',
   },
   icons: {
     icon: [
       { url: `${basePath}/icon-192.png`, sizes: '192x192', type: 'image/png' },
       { url: `${basePath}/icon-512.png`, sizes: '512x512', type: 'image/png' },
-      { url: `${basePath}/icon.svg`, type: 'image/svg+xml' },
+      { url: `${basePath}/favicon.png`, type: 'image/png' },
     ],
     apple: `${basePath}/apple-touch-icon.png`,
   },
@@ -93,7 +93,7 @@ export default async function RootLayout({
     searchItems.push({
       id: 'resume',
       title: 'Resume',
-      description: 'Matthew Coleman\'s Professional Resume',
+      description: 'David Coleman\'s Professional Resume',
       url: '/resume',
       type: 'resume' as const,
     });
@@ -124,8 +124,8 @@ export default async function RootLayout({
               <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-5xl">
                   {/* Logo / Brand */}
-                  <Link href="/" className="font-semibold text-lg hover:text-muted-foreground transition-colors group flex items-center">
-                    Matthew Coleman
+                  <Link href="/" className="hover:opacity-70 transition-opacity group flex items-center">
+                    <img src="/logo.svg" alt="David Coleman" className="h-6 dark:invert" />
                   </Link>
 
                   {/* Desktop Navigation - Hidden on mobile */}
@@ -160,7 +160,7 @@ export default async function RootLayout({
 
                 <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground max-w-4xl space-y-2">
                   <div>
-                    © 2003-{new Date().getFullYear()} Matthew Coleman. All rights reserved.
+                    © 1999-{new Date().getFullYear()} David Coleman. All rights reserved.
                   </div>
                   <div>
                     <Link href="/brand-kit" className="hover:text-primary transition-colors hover:underline underline-offset-4">
@@ -174,9 +174,9 @@ export default async function RootLayout({
                 </div>
               </footer>
             </div>
-            <CustomCursor />
           </ThemeWrapper>
         </ThemeProvider>
+        <CustomCursor />
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}

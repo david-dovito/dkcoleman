@@ -28,7 +28,7 @@ export function ContentEditor({ token, workerUrl }: ContentEditorProps) {
         setLoading(true);
         try {
             const headers: Record<string, string> = {
-                'X-Requested-With': 'mncoleman-admin'
+                'X-Requested-With': 'dkcoleman-admin'
             };
             if (token && token !== 'cookie-managed') {
                 headers['Authorization'] = `Bearer ${token}`;
@@ -67,7 +67,7 @@ export function ContentEditor({ token, workerUrl }: ContentEditorProps) {
         try {
             const headers: Record<string, string> = {
                 'Content-Type': 'application/json',
-                'X-Requested-With': 'mncoleman-admin'
+                'X-Requested-With': 'dkcoleman-admin'
             };
             if (token && token !== 'cookie-managed') {
                 headers['Authorization'] = `Bearer ${token}`;

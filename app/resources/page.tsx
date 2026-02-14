@@ -2,7 +2,7 @@ import { getPublishedResources } from '@/lib/resources';
 import ResourcesPageClient from './ResourcesPageClient';
 
 export const metadata = {
-    title: "Resources | Matthew Coleman",
+    title: "Resources | David Coleman",
     description: "A curated collection of useful websites, tools, and resources.",
 };
 

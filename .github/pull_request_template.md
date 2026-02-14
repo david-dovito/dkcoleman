@@ -58,7 +58,7 @@ Once merged:
    - Then access admin at `/admin/`
 
 3. **Site will be live at**:
-   - `https://slider003.github.io/matthew-coleman/`
+   - `https://dkcoleman.github.io/dkcoleman/`
 
 ## Files Added
 
