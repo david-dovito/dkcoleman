@@ -83,7 +83,7 @@ function CardContent({ card }: { card: (typeof bentoCards)[number] }) {
           <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
-      <card.icon className="absolute bottom-8 right-8 h-16 w-16 text-muted-foreground/10 group-hover:text-primary/20 transition-colors" />
+      <card.icon className="absolute bottom-8 right-8 h-16 w-16 text-muted-foreground/10 group-hover:text-fern-600/25 transition-colors" />
     </Link>
   );
 }

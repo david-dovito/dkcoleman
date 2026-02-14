@@ -89,4 +89,26 @@
       cursor: none !important;
     }
   }
+
+  /* Text selection with fern accent */
+  ::selection {
+    background-color: rgba(88, 129, 87, 0.25);
+  }
+}
+
+/* Fern-accented scrollbar */
+@layer utilities {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(88, 129, 87, 0.3);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(88, 129, 87, 0.5);
+  }
 }

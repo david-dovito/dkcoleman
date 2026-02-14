@@ -138,7 +138,7 @@ export default function ProjectsPageClient({ projects }: ProjectsPageClientProps
 
                         {/* Interactive hover indicator */}
                         <div className="absolute bottom-0 left-0 right-0 h-1">
-                            <div className="h-full w-0 bg-primary group-hover:w-full transition-all duration-500 mx-auto" />
+                            <div className="h-full w-0 bg-gradient-to-r from-fern-500 to-fern-600 group-hover:w-full transition-all duration-500 mx-auto" />
                         </div>
                     </article>
                 ))}

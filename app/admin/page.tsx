@@ -115,7 +115,7 @@ export default function AdminPage() {
     }
 
     return (
-        <div className="container py-20 flex flex-col items-center min-h-[80vh]">
+        <div className="container py-20 flex flex-col items-center justify-center min-h-[80vh]">
             {session ? (
                 <AdminDashboard
                     token={session.token}

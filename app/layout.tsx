@@ -132,20 +132,25 @@ export default async function RootLayout({
 
                   {/* Desktop Navigation - Hidden on mobile */}
                   <nav className="hidden md:flex gap-6 items-center">
-                    <Link href="/blog" className="text-sm hover:text-muted-foreground transition-colors group flex items-center">
+                    <Link href="/blog" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       Blog <Kbd>B</Kbd>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
-                    <Link href="/projects" className="text-sm hover:text-muted-foreground transition-colors group flex items-center">
+                    <Link href="/projects" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       Projects <Kbd>P</Kbd>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
-                    <Link href="/resources" className="text-sm hover:text-muted-foreground transition-colors group flex items-center">
+                    <Link href="/resources" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       Resources <Kbd>R</Kbd>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
-                    <Link href="/resume" className="text-sm hover:text-muted-foreground transition-colors group flex items-center">
+                    <Link href="/resume" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       Resume <Kbd>M</Kbd>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
-                    <Link href="/about" className="text-sm hover:text-muted-foreground transition-colors group flex items-center">
+                    <Link href="/about" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       About <Kbd>A</Kbd>
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
                     <div className="h-4 w-[1px] bg-border mx-2" />
                     <Nav1159Button kbdClass="ml-2 hidden lg:inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border rounded bg-muted/50 text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary" />
@@ -166,7 +171,7 @@ export default async function RootLayout({
                     © 1999-{new Date().getFullYear()} David Coleman. All rights reserved.
                   </div>
                   <div>
-                    <Link href="/brand-kit" className="hover:text-primary transition-colors hover:underline underline-offset-4">
+                    <Link href="/brand-kit" className="hover:text-fern-600 transition-colors hover:underline underline-offset-4 decoration-fern-500">
                       Brand Kit
                     </Link>
                     <span className="mx-2">•</span>

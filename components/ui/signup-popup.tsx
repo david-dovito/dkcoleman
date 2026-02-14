@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 const OPEN_EVENT = 'the1159:open';
@@ -25,6 +26,11 @@ export function The1159Button({ kbd }: { kbd?: React.ReactNode }) {
 export default function SignupPopup() {
     const [visible, setVisible] = useState(false);
     const [closing, setClosing] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const close = useCallback(() => {
         setClosing(true);
@@ -54,9 +60,9 @@ export default function SignupPopup() {
         };
     }, [visible, close]);
 
-    if (!visible) return null;
+    if (!visible || !mounted) return null;
 
-    return (
+    return createPortal(
         <>
             <div
                 className={`fixed inset-0 z-[9998] bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${closing ? 'opacity-0' : 'opacity-100'}`}
@@ -77,12 +83,13 @@ export default function SignupPopup() {
                         <X className="w-4 h-4" />
                     </button>
                     <div className="px-6 pt-6 pb-2 text-center">
-                        <h2 className="text-xl font-bold tracking-tight">The 1159</h2>
-                        <p className="text-sm text-muted-foreground mt-1">Sign up for encouragement, delivered daily.</p>
+                        <h2 className="text-xl font-bold tracking-tight">The 1159: An Email to Encourage</h2>
+                        <p className="text-sm text-muted-foreground mt-1">You don&apos;t need to do it alone. Let&apos;s learn and grow together!</p>
+                        <p className="text-xs text-muted-foreground/60 mt-2">Sign up to receive a weekly encouragement email from David Coleman. No spam, just a quick note to start your week.</p>
                     </div>
                     <iframe
                         src="https://api.dovito.com/widget/form/5szVTLRB1KReKENh0Qjv"
-                        style={{ width: '100%', height: '200px', border: 'none', borderRadius: '0 0 16px 16px', colorScheme: 'auto' }}
+                        style={{ width: '100%', height: '260px', border: 'none', borderRadius: '0 0 16px 16px', colorScheme: 'auto' }}
                         id="popup-5szVTLRB1KReKENh0Qjv"
                         data-layout="{'id':'INLINE'}"
                         data-trigger-type="alwaysShow"
@@ -92,13 +99,14 @@ export default function SignupPopup() {
                         data-deactivation-type="neverDeactivate"
                         data-deactivation-value=""
                         data-form-name="E-Email"
-                        data-height="200"
+                        data-height="260"
                         data-layout-iframe-id="popup-5szVTLRB1KReKENh0Qjv"
                         data-form-id="5szVTLRB1KReKENh0Qjv"
                         title="The 1159 Signup"
                     />
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     );
 }

@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Mail, MapPin, Globe, Linkedin, ChevronDown } from 'lucide-react';
+import { Mail, MapPin, Globe, Linkedin, ChevronDown, FileText, BookOpen } from 'lucide-react';
 import { FallInText } from '@/components/ui/fall-in-text';
 import { BlurText } from '@/components/ui/blur-text';
 import { TextType } from '@/components/ui/text-type';
+import ReactMarkdown from 'react-markdown';
+import type { NarrativeSection } from '@/lib/resume-narrative';
 
 // ── Scroll-triggered fade-in wrapper ──
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -68,19 +70,6 @@ function ExperienceCard({ title, company, meta, description, achievements, defau
     delay?: number;
 }) {
     const [open, setOpen] = useState(defaultOpen);
-    const contentRef = useRef<HTMLDivElement>(null);
-    const [contentHeight, setContentHeight] = useState<number | 'auto'>(defaultOpen ? 'auto' : 0);
-    const [hasMounted, setHasMounted] = useState(false);
-
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (contentRef.current) {
-            setContentHeight(contentRef.current.scrollHeight);
-        }
-    }, [open, hasMounted]);
 
     return (
         <Reveal delay={delay}>
@@ -105,10 +94,10 @@ function ExperienceCard({ title, company, meta, description, achievements, defau
 
                 {achievements && achievements.length > 0 && (
                     <div
-                        className="overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                        style={{ maxHeight: open ? (contentHeight === 'auto' ? 'none' : `${contentHeight}px`) : '0px', opacity: open ? 1 : 0 }}
+                        className="grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                        style={{ gridTemplateRows: open ? '1fr' : '0fr', opacity: open ? 1 : 0 }}
                     >
-                        <div ref={contentRef}>
+                        <div className="overflow-hidden">
                             <div className="h-px bg-border/50 my-4" />
                             <ul className="space-y-3">
                                 {achievements.map((item, i) => (
@@ -154,8 +143,134 @@ const philosophy = [
     'Pass forward what others invested in you. Develop the next generation.',
 ];
 
+// ── Mode toggle ──
+function ModeToggle({ mode, setMode, hasNarrative }: { mode: 'official' | 'narrative'; setMode: (m: 'official' | 'narrative') => void; hasNarrative: boolean }) {
+    if (!hasNarrative) return null;
+
+    return (
+        <div className="flex items-center justify-center mb-8">
+            <div className="inline-flex rounded-full border border-border/50 bg-background/60 backdrop-blur-xl p-1 shadow-sm">
+                <button
+                    onClick={() => setMode('official')}
+                    className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${mode === 'official'
+                        ? 'bg-fern-500 text-white shadow-md shadow-fern-500/25'
+                        : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                >
+                    <FileText className="w-4 h-4" />
+                    Official
+                </button>
+                <button
+                    onClick={() => setMode('narrative')}
+                    className={`flex items-center gap-2 px-5 py-2 rounded-full text-sm font-medium transition-all duration-300 ${mode === 'narrative'
+                        ? 'bg-fern-500 text-white shadow-md shadow-fern-500/25'
+                        : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                >
+                    <BookOpen className="w-4 h-4" />
+                    Narrative
+                </button>
+            </div>
+        </div>
+    );
+}
+
+// ── Narrative timeline section ──
+function NarrativeTimeline({ sections }: { sections: NarrativeSection[] }) {
+    return (
+        <div className="max-w-4xl mx-auto space-y-8">
+            {/* Header */}
+            <Reveal>
+                <GlassCard className="relative overflow-hidden !p-0">
+                    <div className="bg-gradient-to-br from-pine_teal to-hunter_green dark:from-pine_teal/90 dark:to-hunter_green/80 text-white p-8 md:p-12 rounded-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-72 h-72 bg-white/5 rounded-full translate-x-[30%] -translate-y-[30%] pointer-events-none" />
+                        <h1 className="text-4xl md:text-5xl font-bold mb-2 relative z-10">
+                            <FallInText text="David Coleman" duration={800} />
+                        </h1>
+                        <div className="text-lg text-[#8fc0a9] font-medium mb-4 relative z-10">
+                            <BlurText text="The Expanded Resume" delay={300} duration={1000} />
+                        </div>
+                        <p className="text-zinc-300 leading-relaxed relative z-10 max-w-2xl">
+                            Below is an expanded version of my resume, where I give a little more context around each experience.
+                        </p>
+                    </div>
+                </GlassCard>
+            </Reveal>
+
+            {/* Timeline */}
+            <div className="relative">
+                {/* Vertical line */}
+                <div className="absolute left-6 top-0 bottom-0 w-px bg-gradient-to-b from-fern-500/50 via-fern-500/20 to-transparent hidden md:block" />
+
+                <div className="space-y-6">
+                    {sections.map((section, i) => (
+                        <Reveal key={section.id} delay={i * 100}>
+                            <div className="relative md:pl-16">
+                                {/* Timeline dot */}
+                                <div className="hidden md:flex absolute left-0 top-6 w-12 h-12 items-center justify-center rounded-full border-2 border-fern-500/50 bg-background shadow-lg shadow-fern-500/10 z-10">
+                                    {section.iconType === 'emoji' ? (
+                                        <span className="text-xl">{section.icon}</span>
+                                    ) : (
+                                        <img src={section.icon} alt="" className="w-6 h-6 rounded" />
+                                    )}
+                                </div>
+
+                                <GlassCard>
+                                    {/* Mobile icon */}
+                                    <div className="flex md:hidden items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 flex items-center justify-center rounded-full border-2 border-fern-500/50 bg-background shadow-sm">
+                                            {section.iconType === 'emoji' ? (
+                                                <span className="text-lg">{section.icon}</span>
+                                            ) : (
+                                                <img src={section.icon} alt="" className="w-5 h-5 rounded" />
+                                            )}
+                                        </div>
+                                        <div>
+                                            <h3 className="text-xl font-bold text-foreground">{section.title}</h3>
+                                            <div className="text-sm text-fern-600 dark:text-dry_sage font-medium">{section.period}</div>
+                                        </div>
+                                    </div>
+
+                                    {/* Desktop title */}
+                                    <div className="hidden md:block mb-4">
+                                        <h3 className="text-xl font-bold text-foreground">{section.title}</h3>
+                                        <div className="text-sm text-fern-600 dark:text-dry_sage font-medium mt-1">{section.period}</div>
+                                    </div>
+
+                                    {/* Markdown content */}
+                                    <div className="prose prose-neutral dark:prose-invert max-w-none prose-headings:text-base prose-headings:font-bold prose-headings:tracking-wide prose-headings:text-foreground prose-headings:mt-6 prose-headings:mb-3 prose-p:text-muted-foreground prose-p:leading-relaxed prose-li:text-muted-foreground prose-li:leading-relaxed prose-strong:text-foreground prose-ul:space-y-1 prose-a:text-fern-600 dark:prose-a:text-dry_sage prose-a:no-underline hover:prose-a:underline">
+                                        <ReactMarkdown>{section.content}</ReactMarkdown>
+                                    </div>
+                                </GlassCard>
+                            </div>
+                        </Reveal>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 // ── Main component ──
-export default function ResumeClient() {
+export default function ResumeClient({ narrativeSections = [] }: { narrativeSections?: NarrativeSection[] }) {
+    const [mode, setMode] = useState<'official' | 'narrative'>('official');
+    const hasNarrative = narrativeSections.length > 0;
+
+    return (
+        <>
+            <ModeToggle mode={mode} setMode={setMode} hasNarrative={hasNarrative} />
+
+            {mode === 'narrative' && hasNarrative ? (
+                <NarrativeTimeline sections={narrativeSections} />
+            ) : (
+                <OfficialResume />
+            )}
+        </>
+    );
+}
+
+// ── Official resume (existing) ──
+function OfficialResume() {
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             {/* ── Header ── */}
