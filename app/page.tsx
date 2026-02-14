@@ -250,8 +250,11 @@ export default function Home() {
   return (
     <>
       <DarkVeil hueShift={100} speed={1.0} warpAmount={1.0} resolutionScale={0.8} />
-      {mode === 'desktop' && <DesktopGrid />}
-      {mode === 'mobile' && <MobileStack />}
+      {/* Force dark theme on home page since Dark Veil background is always dark */}
+      <div className="dark" style={{ colorScheme: 'dark' }}>
+        {mode === 'desktop' && <DesktopGrid />}
+        {mode === 'mobile' && <MobileStack />}
+      </div>
     </>
   );
 }
