@@ -6,6 +6,21 @@ import { ProfileCard } from '@/components/ui/profile-card';
 import { Cpu, Code2, Sparkles } from 'lucide-react';
 import type { AboutData } from '@/lib/about';
 
+/** Renders text that may contain \n\n paragraph breaks */
+function MultiParagraph({ text, className = '' }: { text: string; className?: string }) {
+  const paragraphs = text.split('\n\n').filter(Boolean);
+  if (paragraphs.length <= 1) {
+    return <BlurText text={text} duration={1200} />;
+  }
+  return (
+    <div className={`space-y-4 ${className}`}>
+      {paragraphs.map((p, i) => (
+        <p key={i}>{p}</p>
+      ))}
+    </div>
+  );
+}
+
 interface AboutClientProps {
   data: AboutData;
 }
@@ -33,12 +48,9 @@ export default function AboutClient({ data }: AboutClientProps) {
                   <TextType text="Introduction" speed={80} />
                 </h2>
               </div>
-              <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-                <BlurText
-                  text={data.introduction}
-                  duration={1200}
-                />
-              </p>
+              <div className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+                <MultiParagraph text={data.introduction} />
+              </div>
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-1">
               <div className="h-full w-0 bg-primary group-hover:w-full transition-all duration-500 mx-auto" />
@@ -72,10 +84,7 @@ export default function AboutClient({ data }: AboutClientProps) {
               </h2>
             </div>
             <div className="text-muted-foreground leading-relaxed">
-              <BlurText
-                text={data.whatIDo}
-                duration={1200}
-              />
+              <MultiParagraph text={data.whatIDo} />
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-1">
               <div className="h-full w-0 bg-primary group-hover:w-full transition-all duration-500 mx-auto" />
@@ -93,10 +102,7 @@ export default function AboutClient({ data }: AboutClientProps) {
               </h2>
             </div>
             <div className="text-muted-foreground leading-relaxed">
-              <BlurText
-                text={data.thisWebsite}
-                duration={1200}
-              />
+              <MultiParagraph text={data.thisWebsite} />
             </div>
             <div className="absolute bottom-0 left-0 right-0 h-1">
               <div className="h-full w-0 bg-primary group-hover:w-full transition-all duration-500 mx-auto" />
@@ -117,12 +123,9 @@ export default function AboutClient({ data }: AboutClientProps) {
                     <TextType text="The 1159" speed={80} />
                   </h2>
                 </div>
-                <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
-                  <BlurText
-                    text={data.the1159}
-                    duration={1200}
-                  />
-                </p>
+                <div className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+                  <MultiParagraph text={data.the1159} />
+                </div>
               </div>
               <div className="absolute bottom-0 left-0 right-0 h-1">
                 <div className="h-full w-0 bg-primary group-hover:w-full transition-all duration-500 mx-auto" />

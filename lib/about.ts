@@ -7,12 +7,6 @@ const getNotionClient = () => {
     return new Client({ auth: process.env.NOTION_TOKEN });
 };
 
-export interface AboutSection {
-    id: string;
-    name: string;
-    text: string;
-}
-
 export interface AboutData {
     introduction: string;
     whatIDo: string;
@@ -27,7 +21,6 @@ const SAMPLE_DATA: AboutData = {
     the1159: '',
 };
 
-// Map database entry names to AboutData keys
 const NAME_TO_KEY: Record<string, keyof AboutData> = {
     'Introduction': 'introduction',
     'What I do': 'whatIDo',
@@ -36,11 +29,25 @@ const NAME_TO_KEY: Record<string, keyof AboutData> = {
     'The 1159': 'the1159',
 };
 
+/** Extract plain text from all paragraph blocks in a Notion page */
+async function getPageBlockText(notion: Client, pageId: string): Promise<string> {
+    const blocks = await notion.blocks.children.list({ block_id: pageId });
+    const paragraphs: string[] = [];
+
+    for (const block of blocks.results as any[]) {
+        if (block.type === 'paragraph' && block.paragraph?.rich_text) {
+            const text = block.paragraph.rich_text.map((rt: any) => rt.plain_text).join('');
+            if (text.trim()) paragraphs.push(text.trim());
+        }
+    }
+
+    return paragraphs.join('\n\n');
+}
+
 export async function getAboutSections(): Promise<AboutData> {
     const databaseId = process.env.NOTION_ABOUT_DATABASE_ID;
     const token = process.env.NOTION_TOKEN;
 
-    // Check for valid credentials before attempting to connect
     if (!databaseId || !token || token === 'ntn_your_integration_token_here') {
         console.warn('NOTION_ABOUT_DATABASE_ID not set or credentials missing, returning sample data');
         return SAMPLE_DATA;
@@ -48,20 +55,23 @@ export async function getAboutSections(): Promise<AboutData> {
 
     try {
         const notion = getNotionClient();
-        const response = await notion.databases.query({
-            database_id: databaseId,
-        });
+        const response = await notion.databases.query({ database_id: databaseId });
 
         const data: AboutData = { ...SAMPLE_DATA };
 
         for (const page of response.results) {
             const props = (page as any).properties;
             const name = props.Name?.title?.[0]?.plain_text || '';
-            const text = props.Text?.rich_text?.[0]?.plain_text || '';
-
             const key = NAME_TO_KEY[name];
-            if (key && text) {
-                data[key] = text;
+            if (!key) continue;
+
+            // Try Text property first, then fall back to page block content
+            const propText = props.Text?.rich_text?.[0]?.plain_text || '';
+            if (propText) {
+                data[key] = propText;
+            } else {
+                const blockText = await getPageBlockText(notion, page.id);
+                if (blockText) data[key] = blockText;
             }
         }
 
