@@ -37,15 +37,12 @@ export default function ProjectsPageClient({ projects }: ProjectsPageClientProps
 
     return (
         <div className="container mx-auto px-4 py-16 max-w-5xl">
-            <header className="mb-12 text-center text-balance">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 leading-tight">
-                    Things I've Made
-                    <span className="block text-xl md:text-2xl font-medium text-muted-foreground mt-2">
-                        (Probably with AI)
-                    </span>
+            <header className="mb-12 text-center space-y-4 pt-8">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-primary via-primary/50 to-primary bg-clip-text text-transparent">
+                    PROJECTS
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    A collection of projects, experiments, and various things I've built along my journey. Most of these involve AI in some capacity.
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto backdrop-blur-sm">
+                    A collection of projects, experiments, and tools — oftentimes with AI.
                 </p>
             </header>
 

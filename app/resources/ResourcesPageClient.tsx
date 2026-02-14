@@ -35,15 +35,12 @@ export default function ResourcesPageClient({ initialResources }: ResourcesPageC
 
     return (
         <div className="container mx-auto px-4 py-16 max-w-5xl">
-            <header className="mb-12 text-center text-balance">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 leading-tight">
-                    Resources
-                    <span className="block text-xl md:text-2xl font-medium text-muted-foreground mt-2">
-                        Tools, Websites & Inspiration
-                    </span>
+            <header className="mb-12 text-center space-y-4 pt-8">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-primary via-primary/50 to-primary bg-clip-text text-transparent">
+                    RESOURCES
                 </h1>
-                <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                    A curated collection of useful websites, tools, and resources I use frequently or find useful.
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto backdrop-blur-sm">
+                    A curated collection of useful websites, tools, and inspiration.
                 </p>
             </header>
 

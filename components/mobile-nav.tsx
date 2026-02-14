@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { openSignupPopup } from '@/components/ui/signup-popup';
 
 const navLinks = [
     { href: '/', label: 'Home' },
@@ -18,7 +19,6 @@ export function MobileNav() {
     const [isOpen, setIsOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const pathname = usePathname();
-
     const toggleMenu = () => {
         if (isOpen) {
             closeMenu();
@@ -103,6 +103,21 @@ export function MobileNav() {
                                 <span className="font-medium whitespace-nowrap">{link.label}</span>
                             </Link>
                         ))}
+                        {/* 1159 Signup Button */}
+                        <button
+                            onClick={() => { closeMenu(); openSignupPopup(); }}
+                            className={`w-40 px-6 py-3 rounded-full backdrop-blur-xl border shadow-xl hover:scale-105 transition-all duration-300 text-center bg-transparent border-border/50 hover:border-primary/30 hover:shadow-primary/20 ${
+                                isClosing
+                                    ? 'animate-[slideOut_0.25s_ease-in_forwards]'
+                                    : 'animate-[slideIn_0.25s_ease-out_forwards]'
+                            }`}
+                            style={{
+                                animationDelay: `${navLinks.length * 50}ms`,
+                                opacity: isClosing ? 1 : 0
+                            }}
+                        >
+                            <span className="font-medium whitespace-nowrap">1159</span>
+                        </button>
                     </div>
                 </div>
             )}

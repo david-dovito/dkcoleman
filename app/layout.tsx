@@ -7,8 +7,9 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { MobileNav } from '@/components/mobile-nav';
 import { HamburgerButton } from '@/components/hamburger-button';
 import CustomCursor from '@/components/ui/CustomCursor';
-import SignupPopup from '@/components/ui/signup-popup';
+import { Nav1159Button } from '@/components/nav-1159';
 import { ThemeWrapper } from '@/components/theme-wrapper';
+
 import { KeyBindings } from '@/components/key-bindings';
 import { Search, SearchItem } from '@/components/search';
 import { getPublishedPostsWithContent } from '@/lib/notion';
@@ -147,6 +148,7 @@ export default async function RootLayout({
                       About <Kbd>A</Kbd>
                     </Link>
                     <div className="h-4 w-[1px] bg-border mx-2" />
+                    <Nav1159Button kbdClass="ml-2 hidden lg:inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border rounded bg-muted/50 text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary" />
                     <Search items={searchItems} />
                   </nav>
 
@@ -178,7 +180,6 @@ export default async function RootLayout({
           </ThemeWrapper>
         </ThemeProvider>
         <CustomCursor />
-        <SignupPopup />
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
         )}

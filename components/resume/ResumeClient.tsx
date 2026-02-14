@@ -292,7 +292,7 @@ export default function ResumeClient() {
                             <div className="h-px bg-border/50" />
                             <div className="text-sm text-muted-foreground">
                                 <span className="font-semibold text-foreground">Professional Development:</span>{' '}
-                                WGU Micro-credentials in Applied Business Skills, Human Resource Management, Business Essentials | Foundations of Leadership Certificate
+                                WGU Micro-credentials in Applied Business Skills, Human Resource Management, Business Essentials | Foundations of Leadership Certificate (Sigma Alpha Pi, NSLS)
                             </div>
                         </div>
                     </GlassCard>

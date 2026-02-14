@@ -1,6 +1,5 @@
 'use client';
 
-import { FallInText } from '@/components/ui/fall-in-text';
 import { TextType } from '@/components/ui/text-type';
 import { BlurText } from '@/components/ui/blur-text';
 import { ProfileCard } from '@/components/ui/profile-card';
@@ -14,11 +13,13 @@ interface AboutClientProps {
 export default function AboutClient({ data }: AboutClientProps) {
   return (
     <div className="container mx-auto px-4 py-16 max-w-6xl">
-      <header className="mb-12 text-center text-balance">
-        <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
-          <FallInText text="About Me" duration={800} className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60" />
+      <header className="mb-12 text-center space-y-4 pt-8">
+        <h1 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-primary via-primary/50 to-primary bg-clip-text text-transparent">
+          ABOUT
         </h1>
-        <div className="h-1 w-20 bg-primary/20 mx-auto rounded-full" />
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto backdrop-blur-sm">
+          A bit about who I am, what I do, and what drives me.
+        </p>
       </header>
 
       <div className="space-y-8 lg:space-y-0">

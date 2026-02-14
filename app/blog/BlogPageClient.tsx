@@ -21,13 +21,13 @@ export default function BlogPageClient({ initialPosts, allTags }: BlogPageClient
 
     return (
         <div className="container mx-auto px-4 py-16 max-w-5xl">
-            <header className="mb-12 text-center text-balance">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 leading-tight">
-                    Blog
-                    <span className="block text-xl md:text-2xl font-medium text-muted-foreground mt-2">
-                        Thoughts on technology, life, and sometimes just random things.
-                    </span>
+            <header className="mb-12 text-center space-y-4 pt-8">
+                <h1 className="text-5xl md:text-7xl font-black tracking-tight bg-gradient-to-r from-primary via-primary/50 to-primary bg-clip-text text-transparent">
+                    BLOG
                 </h1>
+                <p className="text-lg text-muted-foreground max-w-2xl mx-auto backdrop-blur-sm">
+                    Thoughts on technology, life, and sometimes just random things.
+                </p>
             </header>
 
             {/* Tag Filter */}
