@@ -9,9 +9,10 @@ import { format } from 'date-fns';
 interface BlogPageClientProps {
     initialPosts: Post[];
     allTags: string[];
+    postSvgs?: Record<string, string>;
 }
 
-export default function BlogPageClient({ initialPosts, allTags }: BlogPageClientProps) {
+export default function BlogPageClient({ initialPosts, allTags, postSvgs }: BlogPageClientProps) {
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
     const filteredPosts = useMemo(() => {
@@ -76,9 +77,17 @@ export default function BlogPageClient({ initialPosts, allTags }: BlogPageClient
                     <Link
                         key={post.id}
                         href={`/blog/${post.slug}`}
-                        className="group relative flex flex-col h-full p-6 rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:bg-background/80 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both overflow-hidden"
+                        className="group relative flex flex-col h-full rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:bg-background/80 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both overflow-hidden"
                     >
-                        <div className="flex justify-between items-start mb-4">
+                        {/* SVG Thumbnail */}
+                        {postSvgs?.[post.id] && (
+                            <div
+                                className="w-full rounded-t-2xl overflow-hidden"
+                                dangerouslySetInnerHTML={{ __html: postSvgs[post.id] }}
+                            />
+                        )}
+
+                        <div className="flex justify-between items-start p-6 pb-0 mb-4">
                             <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                                 <BookOpen className="h-5 w-5" />
                             </div>
@@ -89,7 +98,7 @@ export default function BlogPageClient({ initialPosts, allTags }: BlogPageClient
                             )}
                         </div>
 
-                        <div className="flex-1">
+                        <div className="flex-1 px-6">
                             <h2 className="text-2xl font-bold mb-3 group-hover:text-primary transition-colors duration-300 leading-tight">
                                 {post.title}
                             </h2>
@@ -98,7 +107,7 @@ export default function BlogPageClient({ initialPosts, allTags }: BlogPageClient
                             </p>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-4 px-6 pb-6">
                             {post.tags && post.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-2">
                                     {post.tags.map((tag) => (
