@@ -92,11 +92,11 @@ export default function ProjectsPageClient({ projects }: ProjectsPageClientProps
                         className="group relative flex flex-col h-full rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:bg-background/80 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both overflow-hidden"
                     >
                         {project.photo && (
-                            <div className="w-full h-48 overflow-hidden">
+                            <div className="p-4 pb-0">
                                 <img
                                     src={project.photo}
                                     alt={project.name}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                    className="w-full h-auto rounded-xl object-contain"
                                 />
                             </div>
                         )}
