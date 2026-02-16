@@ -15,6 +15,7 @@ export interface Project {
     tech: string[];
     date: string;
     published: boolean;
+    photo: string;
 }
 
 export async function getPublishedProjects(): Promise<Project[]> {
@@ -32,7 +33,8 @@ export async function getPublishedProjects(): Promise<Project[]> {
                 url: 'https://example.com',
                 tech: ['React', 'Next.js', 'Tailwind'],
                 date: new Date().toISOString(),
-                published: true
+                published: true,
+                photo: ''
             }
         ];
     }
@@ -47,15 +49,24 @@ export async function getPublishedProjects(): Promise<Project[]> {
             },
         });
 
-        return response.results.map((page: any) => ({
-            id: page.id,
-            name: page.properties.Name?.title?.[0]?.plain_text || 'Untitled',
-            description: page.properties.Description?.rich_text?.[0]?.plain_text || '',
-            url: page.properties.URL?.url || '',
-            tech: page.properties.Category?.select ? [page.properties.Category.select.name] : [],
-            date: '',
-            published: page.properties.Published?.checkbox || false
-        }));
+        return response.results.map((page: any) => {
+            const photoFiles = page.properties.Photo?.files || [];
+            let photo = '';
+            if (photoFiles.length > 0) {
+                const file = photoFiles[0];
+                photo = file.type === 'external' ? file.external?.url || '' : file.file?.url || '';
+            }
+            return {
+                id: page.id,
+                name: page.properties.Name?.title?.[0]?.plain_text || 'Untitled',
+                description: page.properties.Description?.rich_text?.[0]?.plain_text || '',
+                url: page.properties.URL?.url || '',
+                tech: page.properties.Category?.select ? [page.properties.Category.select.name] : [],
+                date: '',
+                published: page.properties.Published?.checkbox || false,
+                photo
+            };
+        });
     } catch (error) {
         console.error('Error fetching projects:', error);
         return [];

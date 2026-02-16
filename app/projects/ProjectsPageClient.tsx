@@ -14,6 +14,7 @@ interface Project {
     tech: string[];
     date: string;
     published: boolean;
+    photo: string;
 }
 
 interface ProjectsPageClientProps {
@@ -88,8 +89,19 @@ export default function ProjectsPageClient({ projects }: ProjectsPageClientProps
                 {filteredProjects.map((project) => (
                     <article
                         key={project.id}
-                        className="group relative flex flex-col h-full p-6 rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:bg-background/80 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both overflow-hidden"
+                        className="group relative flex flex-col h-full rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm hover:border-primary/50 hover:bg-background/80 transition-all duration-300 shadow-sm hover:shadow-xl hover:shadow-primary/5 animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both overflow-hidden"
                     >
+                        {project.photo && (
+                            <div className="w-full h-48 overflow-hidden">
+                                <img
+                                    src={project.photo}
+                                    alt={project.name}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                />
+                            </div>
+                        )}
+
+                        <div className="flex flex-col flex-1 p-6">
                         <div className="flex justify-between items-start mb-4">
                             <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors duration-300">
                                 <Code2 className="h-5 w-5" />
@@ -135,6 +147,7 @@ export default function ProjectsPageClient({ projects }: ProjectsPageClientProps
                             title={project.name}
                             onToast={showToast}
                         />
+                        </div>
 
                         {/* Interactive hover indicator */}
                         <div className="absolute bottom-0 left-0 right-0 h-1">

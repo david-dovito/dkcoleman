@@ -670,11 +670,35 @@ Key features:
 | Title | title | Yes | Post title |
 | Slug | text | Yes | URL-friendly identifier |
 | Date | date | Yes | Publication date |
-| Tags | multi-select | No | Categories |
+| Tags | multi-select | No | Standardized tag system (see below) |
 | Published | checkbox | Yes | Visibility control |
 | Featured | checkbox | No | Pin to top |
 | Excerpt | text | No | Short summary |
 | Author | text | No | Author name |
+
+### Projects Database Properties
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| Name | title | Yes | Project name |
+| Description | rich_text | No | Brief description |
+| URL | url | No | Link to project |
+| Category | select | Yes | Project category (standardized, see below) |
+| Photo | files | No | Project screenshot/image |
+| Published | checkbox | Yes | Visibility control |
+
+### Projects Tag System (Category)
+
+Projects use a single-select **Category** property. Apply the most relevant category.
+
+| Category | Use For... |
+| --- | --- |
+| **Web App** | Full-stack or frontend web applications, SaaS products, dashboards |
+| **Automation** | Workflows, n8n automations, scripts, integrations, bots |
+| **AI / ML** | AI-powered tools, machine learning projects, LLM applications |
+| **Design** | Graphic design, branding, UI/UX, visual projects |
+| **Internal Tool** | Tools built for internal/business use at DOVITO or clients |
+| **Experiment** | Proof-of-concepts, learning projects, hackathon entries, explorations |
 
 ### Resources Database Properties
 
@@ -682,9 +706,44 @@ Key features:
 | --- | --- | --- | --- |
 | Name | title | Yes | Resource name |
 | URL | url | Yes | Link to resource |
-| Category | select | Yes | Resource category |
+| Category | select | Yes | Resource category (standardized, see below) |
 | Description | text | No | Brief description |
 | Published | checkbox | Yes | Visibility control |
+
+### Resources Tag System (Category)
+
+Resources use a single-select **Category** property. Apply the most relevant category.
+
+| Category | Use For... |
+| --- | --- |
+| **Productivity** | Task management, note-taking, calendars, workflow tools |
+| **Design** | Design tools, UI kits, icon sets, color palettes, fonts |
+| **Development** | Code editors, frameworks, libraries, hosting, APIs, dev tools |
+| **AI** | AI tools, LLM platforms, prompt libraries, AI-powered utilities |
+| **Business** | Finance, legal, marketing, CRM, business operations tools |
+| **Learning** | Courses, tutorials, books, podcasts, educational platforms |
+| **Faith** | Devotionals, Bible tools, ministry resources, Christian media |
+| **Life** | Health, fitness, cooking, travel, general lifestyle resources |
+
+### Blog Tag System
+
+When creating or importing blog posts, apply tags from this standardized 7-tag system. Posts can have multiple tags. Apply all that are relevant based on the content.
+
+| Tag | Apply When Post Covers... |
+| --- | --- |
+| **The 1159** | Any post from "The 1159" weekly newsletter series |
+| **Leadership** | Management, teams, conflict resolution, leading others, organizational topics |
+| **Faith** | Spiritual reflections, God's faithfulness, trust, biblical principles, prayer |
+| **Business** | Entrepreneurship, startups, strategy, career decisions, DOVITO, professional journey |
+| **Technology** | Tech, AI, software, digital tools, innovation, engineering |
+| **Growth** | Personal development, mindset shifts, self-improvement, lessons learned, individual responsibility |
+| **Life** | Relationships, communication, general musings, day-to-day wisdom, community |
+
+**Tagging guidelines:**
+- Every "The 1159" series post gets the **The 1159** tag plus 1-3 content tags
+- Most posts should have 2-4 tags total
+- When in doubt between **Growth** and **Life**, use **Growth** if the post focuses on intentional self-improvement; use **Life** for broader reflections
+- **Leadership** vs **Business**: Leadership is about *people management*; Business is about *strategy, ventures, and career*
 
 ### Resume Page Schema
 
