@@ -28,6 +28,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# Notion images (downloaded at build time)
+/public/project-images/
+
 # Vercel
 .vercel
 

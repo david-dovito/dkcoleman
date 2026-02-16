@@ -1,4 +1,6 @@
 import { Client } from '@notionhq/client';
+import fs from 'fs';
+import path from 'path';
 
 const getNotionClient = () => {
     if (!process.env.NOTION_TOKEN || process.env.NOTION_TOKEN === 'ntn_your_integration_token_here') {
@@ -6,6 +8,34 @@ const getNotionClient = () => {
     }
     return new Client({ auth: process.env.NOTION_TOKEN });
 };
+
+/**
+ * Download a Notion-hosted image to public/project-images/ at build time.
+ * Notion file URLs are temporary (~1hr), so we must persist them locally.
+ */
+async function downloadNotionImage(url: string, pageId: string): Promise<string> {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) return '';
+        const buffer = Buffer.from(await response.arrayBuffer());
+        const contentType = response.headers.get('content-type') || 'image/jpeg';
+        const ext = contentType.includes('png') ? 'png'
+            : contentType.includes('webp') ? 'webp'
+            : 'jpg';
+
+        const dir = path.join(process.cwd(), 'public', 'project-images');
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir, { recursive: true });
+        }
+
+        const filename = `${pageId.replace(/-/g, '')}.${ext}`;
+        fs.writeFileSync(path.join(dir, filename), buffer);
+        return `/project-images/${filename}`;
+    } catch (error) {
+        console.error('Error downloading project image:', error);
+        return '';
+    }
+}
 
 export interface Project {
     id: string;
@@ -49,24 +79,32 @@ export async function getPublishedProjects(): Promise<Project[]> {
             },
         });
 
-        return response.results.map((page: any) => {
-            const photoFiles = page.properties.Photo?.files || [];
+        const projects: Project[] = [];
+        for (const page of response.results) {
+            const props = (page as any).properties;
+            const photoFiles = props.Photo?.files || [];
             let photo = '';
             if (photoFiles.length > 0) {
                 const file = photoFiles[0];
-                photo = file.type === 'external' ? file.external?.url || '' : file.file?.url || '';
+                if (file.type === 'external') {
+                    photo = file.external?.url || '';
+                } else if (file.type === 'file') {
+                    // Download Notion-hosted file to local public/ dir
+                    photo = await downloadNotionImage(file.file?.url || '', page.id);
+                }
             }
-            return {
+            projects.push({
                 id: page.id,
-                name: page.properties.Name?.title?.[0]?.plain_text || 'Untitled',
-                description: page.properties.Description?.rich_text?.[0]?.plain_text || '',
-                url: page.properties.URL?.url || '',
-                tech: page.properties.Category?.select ? [page.properties.Category.select.name] : [],
+                name: props.Name?.title?.[0]?.plain_text || 'Untitled',
+                description: props.Description?.rich_text?.[0]?.plain_text || '',
+                url: props.URL?.url || '',
+                tech: props.Category?.select ? [props.Category.select.name] : [],
                 date: '',
-                published: page.properties.Published?.checkbox || false,
+                published: props.Published?.checkbox || false,
                 photo
-            };
-        });
+            });
+        }
+        return projects;
     } catch (error) {
         console.error('Error fetching projects:', error);
         return [];
