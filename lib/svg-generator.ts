@@ -1,5 +1,5 @@
 // Deterministic SVG illustration generator for blog posts
-// Generates unique visuals based on post title hash + primary tag motif
+// Black/white + single accent color per tag, minimal geometric motifs
 
 // --- Seeded PRNG (Mulberry32) ---
 function createRng(seed: number) {
@@ -21,110 +21,54 @@ function hashString(str: string): number {
   return Math.abs(hash);
 }
 
-// --- Color Utilities ---
-function hslToHex(h: number, s: number, l: number): string {
-  h = h % 360;
-  s = s / 100;
-  l = l / 100;
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(255 * color)
-      .toString(16)
-      .padStart(2, '0');
-  };
-  return `#${f(0)}${f(8)}${f(4)}`;
-}
-
-function lerp(a: number, b: number, t: number): number {
-  return a + (b - a) * t;
-}
-
 // --- Tag Configurations ---
 interface TagConfig {
-  hueRange: [number, number];
-  satRange: [number, number];
-  lightRange: [number, number];
-  bgHue: number;
-  bgSat: number;
-  bgLight: number;
+  accent: string;       // Single accent color
+  accentDim: string;    // Dimmer version of accent
   motif: 'clock' | 'nodes' | 'rays' | 'grid' | 'circuit' | 'spiral' | 'wave';
 }
 
 const TAG_CONFIGS: Record<string, TagConfig> = {
   'The 1159': {
-    hueRange: [220, 45],
-    satRange: [60, 80],
-    lightRange: [45, 65],
-    bgHue: 225,
-    bgSat: 35,
-    bgLight: 8,
+    accent: '#D4A853',
+    accentDim: '#D4A83330',
     motif: 'clock',
   },
   Leadership: {
-    hueRange: [270, 290],
-    satRange: [50, 70],
-    lightRange: [40, 60],
-    bgHue: 275,
-    bgSat: 30,
-    bgLight: 8,
+    accent: '#8B5CF6',
+    accentDim: '#8B5CF630',
     motif: 'nodes',
   },
   Faith: {
-    hueRange: [40, 55],
-    satRange: [70, 90],
-    lightRange: [55, 75],
-    bgHue: 35,
-    bgSat: 25,
-    bgLight: 8,
+    accent: '#E8B931',
+    accentDim: '#E8B93130',
     motif: 'rays',
   },
   Business: {
-    hueRange: [140, 175],
-    satRange: [45, 65],
-    lightRange: [35, 55],
-    bgHue: 160,
-    bgSat: 30,
-    bgLight: 8,
+    accent: '#14B8A6',
+    accentDim: '#14B8A630',
     motif: 'grid',
   },
   Technology: {
-    hueRange: [200, 220],
-    satRange: [55, 75],
-    lightRange: [45, 65],
-    bgHue: 210,
-    bgSat: 25,
-    bgLight: 8,
+    accent: '#3B82F6',
+    accentDim: '#3B82F630',
     motif: 'circuit',
   },
   Growth: {
-    hueRange: [25, 40],
-    satRange: [65, 85],
-    lightRange: [45, 65],
-    bgHue: 30,
-    bgSat: 30,
-    bgLight: 8,
+    accent: '#F59E0B',
+    accentDim: '#F59E0B30',
     motif: 'spiral',
   },
   Life: {
-    hueRange: [330, 350],
-    satRange: [50, 70],
-    lightRange: [50, 70],
-    bgHue: 340,
-    bgSat: 25,
-    bgLight: 8,
+    accent: '#F43F5E',
+    accentDim: '#F43F5E30',
     motif: 'wave',
   },
 };
 
 const DEFAULT_CONFIG: TagConfig = {
-  hueRange: [200, 260],
-  satRange: [40, 60],
-  lightRange: [40, 60],
-  bgHue: 230,
-  bgSat: 20,
-  bgLight: 8,
+  accent: '#8B8B8B',
+  accentDim: '#8B8B8B30',
   motif: 'wave',
 };
 
@@ -135,49 +79,47 @@ function getTagConfig(tags: string[]): TagConfig {
   return DEFAULT_CONFIG;
 }
 
-// --- Motif Generators ---
+// --- Motif Generators (minimal, centered, black/white + accent) ---
+
 function generateClockMotif(rng: () => number, w: number, h: number, config: TagConfig): string {
   const cx = w * 0.5;
   const cy = h * 0.5;
-  const maxR = Math.min(w, h) * 0.4;
+  const radius = Math.min(w, h) * 0.3;
   let paths = '';
 
-  // Circular rays emanating from center (11:59 clock theme)
-  const rayCount = 12 + Math.floor(rng() * 8);
-  for (let i = 0; i < rayCount; i++) {
-    const angle = (i / rayCount) * Math.PI * 2 - Math.PI / 2;
-    const innerR = maxR * (0.15 + rng() * 0.15);
-    const outerR = maxR * (0.6 + rng() * 0.4);
-    const thickness = 1 + rng() * 2.5;
-    const t = i / rayCount;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], t);
-    const sat = lerp(config.satRange[0], config.satRange[1], rng());
-    const light = lerp(config.lightRange[0], config.lightRange[1], rng());
-    const opacity = 0.3 + rng() * 0.5;
+  // Outer circle (thin white)
+  paths += `<circle cx="${cx}" cy="${cy}" r="${radius}" fill="none" stroke="#ffffff" stroke-width="1" opacity="0.15"/>`;
+
+  // Tick marks
+  for (let i = 0; i < 12; i++) {
+    const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+    const isHour = i % 3 === 0;
+    const innerR = radius * (isHour ? 0.85 : 0.9);
+    const outerR = radius * 0.95;
     const x1 = cx + Math.cos(angle) * innerR;
     const y1 = cy + Math.sin(angle) * innerR;
     const x2 = cx + Math.cos(angle) * outerR;
     const y2 = cy + Math.sin(angle) * outerR;
-    paths += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${hslToHex(hue, sat, light)}" stroke-width="${thickness}" opacity="${opacity}" stroke-linecap="round"/>`;
+    paths += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#ffffff" stroke-width="${isHour ? 2 : 1}" opacity="${isHour ? 0.4 : 0.2}" stroke-linecap="round"/>`;
   }
 
-  // Clock hands pointing to 11:59
+  // Minute hand (11:59 → pointing straight up)
   const minuteAngle = (59 / 60) * Math.PI * 2 - Math.PI / 2;
+  paths += `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(minuteAngle) * radius * 0.7}" y2="${cy + Math.sin(minuteAngle) * radius * 0.7}" stroke="#ffffff" stroke-width="2" opacity="0.6" stroke-linecap="round"/>`;
+
+  // Hour hand (pointing to ~11)
   const hourAngle = (11 / 12 + 59 / 720) * Math.PI * 2 - Math.PI / 2;
-  const handColor = hslToHex(config.hueRange[1], 80, 70);
-  paths += `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(minuteAngle) * maxR * 0.35}" y2="${cy + Math.sin(minuteAngle) * maxR * 0.35}" stroke="${handColor}" stroke-width="2.5" opacity="0.8" stroke-linecap="round"/>`;
-  paths += `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(hourAngle) * maxR * 0.22}" y2="${cy + Math.sin(hourAngle) * maxR * 0.22}" stroke="${handColor}" stroke-width="3.5" opacity="0.8" stroke-linecap="round"/>`;
+  paths += `<line x1="${cx}" y1="${cy}" x2="${cx + Math.cos(hourAngle) * radius * 0.45}" y2="${cy + Math.sin(hourAngle) * radius * 0.45}" stroke="${config.accent}" stroke-width="2.5" opacity="0.8" stroke-linecap="round"/>`;
 
-  // Center dot
-  paths += `<circle cx="${cx}" cy="${cy}" r="3" fill="${handColor}" opacity="0.9"/>`;
+  // Center dot (accent)
+  paths += `<circle cx="${cx}" cy="${cy}" r="3" fill="${config.accent}" opacity="0.9"/>`;
 
-  // Scattered accent circles
-  for (let i = 0; i < 6; i++) {
+  // Subtle scattered dots
+  for (let i = 0; i < 3; i++) {
     const angle = rng() * Math.PI * 2;
-    const dist = maxR * (0.5 + rng() * 0.5);
-    const r = 1.5 + rng() * 3;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], rng());
-    paths += `<circle cx="${cx + Math.cos(angle) * dist}" cy="${cy + Math.sin(angle) * dist}" r="${r}" fill="${hslToHex(hue, 70, 60)}" opacity="${0.2 + rng() * 0.3}"/>`;
+    const dist = radius * (1.15 + rng() * 0.3);
+    const r = 1 + rng() * 1.5;
+    paths += `<circle cx="${cx + Math.cos(angle) * dist}" cy="${cy + Math.sin(angle) * dist}" r="${r}" fill="${config.accent}" opacity="0.2"/>`;
   }
 
   return paths;
@@ -185,41 +127,43 @@ function generateClockMotif(rng: () => number, w: number, h: number, config: Tag
 
 function generateNodesMotif(rng: () => number, w: number, h: number, config: TagConfig): string {
   let paths = '';
-  const nodeCount = 8 + Math.floor(rng() * 6);
-  const nodes: { x: number; y: number; r: number }[] = [];
+  const nodeCount = 6 + Math.floor(rng() * 3);
+  const nodes: { x: number; y: number }[] = [];
+  const margin = Math.min(w, h) * 0.15;
 
-  // Generate ascending nodes
+  // Generate ascending nodes (bottom-left to top-right)
   for (let i = 0; i < nodeCount; i++) {
     const progress = i / (nodeCount - 1);
-    const x = w * (0.15 + rng() * 0.7);
-    const y = h * (0.85 - progress * 0.7) + (rng() - 0.5) * h * 0.08;
-    const r = 3 + rng() * 6;
-    nodes.push({ x, y, r });
+    const x = margin + progress * (w - margin * 2) + (rng() - 0.5) * w * 0.1;
+    const y = h - margin - progress * (h - margin * 2) + (rng() - 0.5) * h * 0.08;
+    nodes.push({ x, y });
   }
 
-  // Draw connections
+  // Draw connections (thin white lines)
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
       const dx = nodes[j].x - nodes[i].x;
       const dy = nodes[j].y - nodes[i].y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < w * 0.35) {
-        const t = i / nodes.length;
-        const hue = lerp(config.hueRange[0], config.hueRange[1], t);
-        const opacity = 0.1 + (1 - dist / (w * 0.35)) * 0.25;
-        paths += `<line x1="${nodes[i].x}" y1="${nodes[i].y}" x2="${nodes[j].x}" y2="${nodes[j].y}" stroke="${hslToHex(hue, 50, 55)}" stroke-width="1" opacity="${opacity}"/>`;
+      const maxDist = Math.min(w, h) * 0.4;
+      if (dist < maxDist) {
+        const opacity = 0.06 + (1 - dist / maxDist) * 0.1;
+        paths += `<line x1="${nodes[i].x}" y1="${nodes[i].y}" x2="${nodes[j].x}" y2="${nodes[j].y}" stroke="#ffffff" stroke-width="1" opacity="${opacity}"/>`;
       }
     }
   }
 
   // Draw nodes
   nodes.forEach((node, i) => {
-    const t = i / nodes.length;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], t);
-    const sat = lerp(config.satRange[0], config.satRange[1], rng());
-    const light = lerp(config.lightRange[0], config.lightRange[1], rng());
-    paths += `<circle cx="${node.x}" cy="${node.y}" r="${node.r}" fill="${hslToHex(hue, sat, light)}" opacity="${0.5 + rng() * 0.4}"/>`;
-    paths += `<circle cx="${node.x}" cy="${node.y}" r="${node.r * 0.4}" fill="${hslToHex(hue, sat, light + 20)}" opacity="0.8"/>`;
+    const isAccent = i === nodeCount - 1 || rng() > 0.7;
+    const r = 3 + rng() * 2;
+    if (isAccent) {
+      paths += `<circle cx="${node.x}" cy="${node.y}" r="${r}" fill="${config.accent}" opacity="0.7"/>`;
+    } else {
+      paths += `<circle cx="${node.x}" cy="${node.y}" r="${r}" fill="#ffffff" opacity="0.25"/>`;
+    }
+    // Inner bright dot
+    paths += `<circle cx="${node.x}" cy="${node.y}" r="${r * 0.35}" fill="#ffffff" opacity="0.5"/>`;
   });
 
   return paths;
@@ -227,125 +171,107 @@ function generateNodesMotif(rng: () => number, w: number, h: number, config: Tag
 
 function generateRaysMotif(rng: () => number, w: number, h: number, config: TagConfig): string {
   let paths = '';
-  const cx = w * (0.3 + rng() * 0.4);
-  const cy = h * (0.6 + rng() * 0.3);
+  const cx = w * 0.5;
+  const cy = h * 0.55;
+  const maxLen = Math.min(w, h) * 0.4;
 
-  // Radiating light beams
-  const rayCount = 16 + Math.floor(rng() * 12);
+  // Radiating lines from center
+  const rayCount = 18 + Math.floor(rng() * 6);
   for (let i = 0; i < rayCount; i++) {
     const angle = (i / rayCount) * Math.PI * 2;
-    const length = Math.min(w, h) * (0.3 + rng() * 0.5);
-    const spread = (rng() - 0.5) * 0.15;
-    const t = i / rayCount;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], t);
-    const sat = lerp(config.satRange[0], config.satRange[1], rng());
-    const light = lerp(config.lightRange[0], config.lightRange[1], rng());
-    const opacity = 0.15 + rng() * 0.3;
-    const x1 = cx;
-    const y1 = cy;
-    const x2 = cx + Math.cos(angle + spread) * length;
-    const y2 = cy + Math.sin(angle + spread) * length;
-    paths += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${hslToHex(hue, sat, light)}" stroke-width="${1 + rng() * 3}" opacity="${opacity}" stroke-linecap="round"/>`;
+    const length = maxLen * (0.4 + rng() * 0.6);
+    const isAccent = rng() > 0.75;
+    const opacity = isAccent ? 0.3 + rng() * 0.2 : 0.08 + rng() * 0.1;
+    const color = isAccent ? config.accent : '#ffffff';
+    const strokeW = isAccent ? 1.5 : 0.75;
+    const x2 = cx + Math.cos(angle) * length;
+    const y2 = cy + Math.sin(angle) * length;
+    paths += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="${strokeW}" opacity="${opacity}" stroke-linecap="round"/>`;
   }
 
-  // Central glow
-  const glowColor = hslToHex(config.hueRange[0], 80, 75);
-  paths += `<circle cx="${cx}" cy="${cy}" r="${12 + rng() * 8}" fill="${glowColor}" opacity="0.3"/>`;
-  paths += `<circle cx="${cx}" cy="${cy}" r="${6 + rng() * 4}" fill="${glowColor}" opacity="0.5"/>`;
-
-  // Scattered dots
-  for (let i = 0; i < 10; i++) {
-    const angle = rng() * Math.PI * 2;
-    const dist = 30 + rng() * Math.min(w, h) * 0.4;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], rng());
-    paths += `<circle cx="${cx + Math.cos(angle) * dist}" cy="${cy + Math.sin(angle) * dist}" r="${1 + rng() * 2.5}" fill="${hslToHex(hue, 70, 65)}" opacity="${0.2 + rng() * 0.4}"/>`;
-  }
+  // Central glow (accent)
+  paths += `<circle cx="${cx}" cy="${cy}" r="8" fill="${config.accent}" opacity="0.25"/>`;
+  paths += `<circle cx="${cx}" cy="${cy}" r="3" fill="${config.accent}" opacity="0.6"/>`;
 
   return paths;
 }
 
 function generateGridMotif(rng: () => number, w: number, h: number, config: TagConfig): string {
   let paths = '';
-  const cols = 6 + Math.floor(rng() * 4);
-  const rows = 3 + Math.floor(rng() * 3);
-  const cellW = w / (cols + 1);
-  const cellH = h / (rows + 1);
-  const offsetX = cellW;
-  const offsetY = cellH;
+  const cols = 8;
+  const rows = 4;
+  const margin = Math.min(w, h) * 0.12;
+  const cellW = (w - margin * 2) / cols;
+  const cellH = (h - margin * 2) / rows;
 
-  // Grid lines
+  // Thin grid lines
   for (let i = 0; i <= cols; i++) {
-    const x = offsetX + i * cellW * (0.9 + rng() * 0.2);
-    const hue = lerp(config.hueRange[0], config.hueRange[1], i / cols);
-    paths += `<line x1="${x}" y1="${offsetY * 0.5}" x2="${x}" y2="${h - offsetY * 0.5}" stroke="${hslToHex(hue, 40, 30)}" stroke-width="0.5" opacity="0.2"/>`;
+    const x = margin + i * cellW;
+    paths += `<line x1="${x}" y1="${margin}" x2="${x}" y2="${h - margin}" stroke="#ffffff" stroke-width="0.5" opacity="0.08"/>`;
   }
   for (let j = 0; j <= rows; j++) {
-    const y = offsetY + j * cellH * (0.9 + rng() * 0.2);
-    const hue = lerp(config.hueRange[0], config.hueRange[1], j / rows);
-    paths += `<line x1="${offsetX * 0.5}" y1="${y}" x2="${w - offsetX * 0.5}" y2="${y}" stroke="${hslToHex(hue, 40, 30)}" stroke-width="0.5" opacity="0.2"/>`;
+    const y = margin + j * cellH;
+    paths += `<line x1="${margin}" y1="${y}" x2="${w - margin}" y2="${y}" stroke="#ffffff" stroke-width="0.5" opacity="0.08"/>`;
   }
 
-  // Highlighted intersection nodes
+  // Highlighted cells (few, deliberate)
   for (let i = 0; i < cols; i++) {
     for (let j = 0; j < rows; j++) {
-      if (rng() > 0.5) continue;
-      const x = offsetX + (i + 0.5) * cellW;
-      const y = offsetY + (j + 0.5) * cellH;
-      const t = (i + j) / (cols + rows);
-      const hue = lerp(config.hueRange[0], config.hueRange[1], t);
-      const sat = lerp(config.satRange[0], config.satRange[1], rng());
-      const light = lerp(config.lightRange[0], config.lightRange[1], rng());
-      const r = 2 + rng() * 5;
-      paths += `<rect x="${x - r}" y="${y - r}" width="${r * 2}" height="${r * 2}" rx="${r * 0.3}" fill="${hslToHex(hue, sat, light)}" opacity="${0.3 + rng() * 0.4}"/>`;
+      if (rng() > 0.2) continue;
+      const x = margin + i * cellW;
+      const y = margin + j * cellH;
+      const isAccent = rng() > 0.5;
+      const fill = isAccent ? config.accentDim : '#ffffff10';
+      paths += `<rect x="${x + 1}" y="${y + 1}" width="${cellW - 2}" height="${cellH - 2}" fill="${fill}"/>`;
+      if (isAccent) {
+        paths += `<rect x="${x + 1}" y="${y + 1}" width="${cellW - 2}" height="${cellH - 2}" fill="none" stroke="${config.accent}" stroke-width="0.5" opacity="0.4"/>`;
+      }
     }
   }
+
+  // Accent dot at one intersection
+  const dotI = Math.floor(rng() * (cols - 1)) + 1;
+  const dotJ = Math.floor(rng() * (rows - 1)) + 1;
+  paths += `<circle cx="${margin + dotI * cellW}" cy="${margin + dotJ * cellH}" r="3" fill="${config.accent}" opacity="0.7"/>`;
 
   return paths;
 }
 
 function generateCircuitMotif(rng: () => number, w: number, h: number, config: TagConfig): string {
   let paths = '';
-  const lineCount = 10 + Math.floor(rng() * 8);
+  const margin = Math.min(w, h) * 0.12;
+  const lineCount = 5 + Math.floor(rng() * 3);
 
   for (let i = 0; i < lineCount; i++) {
-    const t = i / lineCount;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], t);
-    const sat = lerp(config.satRange[0], config.satRange[1], rng());
-    const light = lerp(config.lightRange[0], config.lightRange[1], rng());
-    const color = hslToHex(hue, sat, light);
-    const opacity = 0.2 + rng() * 0.4;
+    const isAccent = i === 0 || rng() > 0.7;
+    const color = isAccent ? config.accent : '#ffffff';
+    const opacity = isAccent ? 0.4 : 0.12;
+    const strokeW = isAccent ? 1.5 : 1;
 
-    // Create circuit-like paths with right angles
-    let x = rng() * w;
-    let y = rng() * h;
+    let x = margin + rng() * (w - margin * 2);
+    let y = margin + rng() * (h - margin * 2);
     let d = `M ${x} ${y}`;
-    const segments = 3 + Math.floor(rng() * 4);
+    const segments = 2 + Math.floor(rng() * 3);
 
     for (let s = 0; s < segments; s++) {
       const horizontal = s % 2 === 0;
-      const length = 30 + rng() * 120;
+      const length = 40 + rng() * 100;
       if (horizontal) {
         x += (rng() > 0.5 ? 1 : -1) * length;
       } else {
         y += (rng() > 0.5 ? 1 : -1) * length;
       }
-      x = Math.max(10, Math.min(w - 10, x));
-      y = Math.max(10, Math.min(h - 10, y));
+      x = Math.max(margin, Math.min(w - margin, x));
+      y = Math.max(margin, Math.min(h - margin, y));
       d += ` L ${x} ${y}`;
     }
 
-    paths += `<path d="${d}" stroke="${color}" stroke-width="${1 + rng()}" fill="none" opacity="${opacity}" stroke-linecap="round"/>`;
+    paths += `<path d="${d}" stroke="${color}" stroke-width="${strokeW}" fill="none" opacity="${opacity}" stroke-linecap="round"/>`;
 
-    // Endpoint nodes
-    paths += `<circle cx="${x}" cy="${y}" r="${2 + rng() * 3}" fill="${color}" opacity="${opacity + 0.1}"/>`;
-  }
-
-  // Data dots flowing along paths
-  for (let i = 0; i < 8; i++) {
-    const x = rng() * w;
-    const y = rng() * h;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], rng());
-    paths += `<circle cx="${x}" cy="${y}" r="${1.5 + rng() * 2}" fill="${hslToHex(hue, 80, 70)}" opacity="${0.4 + rng() * 0.4}"/>`;
+    // Endpoint node
+    if (isAccent) {
+      paths += `<circle cx="${x}" cy="${y}" r="2.5" fill="${config.accent}" opacity="0.6"/>`;
+    }
   }
 
   return paths;
@@ -353,59 +279,63 @@ function generateCircuitMotif(rng: () => number, w: number, h: number, config: T
 
 function generateSpiralMotif(rng: () => number, w: number, h: number, config: TagConfig): string {
   let paths = '';
-  const cx = w * (0.4 + rng() * 0.2);
-  const cy = h * (0.5 + rng() * 0.1);
+  const cx = w * 0.5;
+  const cy = h * 0.5;
+  const maxR = Math.min(w, h) * 0.35;
 
-  // Upward spiral
-  const spirals = 1 + Math.floor(rng() * 2);
-  for (let s = 0; s < spirals; s++) {
-    const startAngle = rng() * Math.PI * 2;
-    const turns = 1.5 + rng() * 2;
-    const maxR = Math.min(w, h) * (0.25 + rng() * 0.15);
-    let d = '';
-    const steps = 60;
+  // Single clean spiral
+  const turns = 2 + rng() * 1.5;
+  const steps = 80;
+  let d = '';
 
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      const angle = startAngle + t * turns * Math.PI * 2;
-      const r = t * maxR;
-      const x = cx + Math.cos(angle) * r + s * 30;
-      const y = cy + Math.sin(angle) * r * 0.6 - t * h * 0.15;
-      d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
-    }
-
-    const hue = lerp(config.hueRange[0], config.hueRange[1], s / spirals);
-    paths += `<path d="${d}" stroke="${hslToHex(hue, 65, 55)}" stroke-width="${1.5 + rng()}" fill="none" opacity="${0.4 + rng() * 0.3}" stroke-linecap="round"/>`;
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const angle = t * turns * Math.PI * 2;
+    const r = t * maxR;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    d += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
   }
 
-  // Branch-like elements
-  for (let i = 0; i < 5 + Math.floor(rng() * 5); i++) {
-    const x = w * (0.2 + rng() * 0.6);
-    const y = h * (0.3 + rng() * 0.5);
-    const length = 15 + rng() * 40;
-    const angle = -Math.PI / 2 + (rng() - 0.5) * Math.PI * 0.6;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], rng());
-    paths += `<line x1="${x}" y1="${y}" x2="${x + Math.cos(angle) * length}" y2="${y + Math.sin(angle) * length}" stroke="${hslToHex(hue, 60, 50)}" stroke-width="${1 + rng() * 2}" opacity="${0.25 + rng() * 0.3}" stroke-linecap="round"/>`;
-    // Leaf node
-    paths += `<circle cx="${x + Math.cos(angle) * length}" cy="${y + Math.sin(angle) * length}" r="${2 + rng() * 3}" fill="${hslToHex(hue, 70, 60)}" opacity="${0.3 + rng() * 0.3}"/>`;
+  // White spiral
+  paths += `<path d="${d}" stroke="#ffffff" stroke-width="1" fill="none" opacity="0.15" stroke-linecap="round"/>`;
+
+  // Second spiral offset (accent)
+  let d2 = '';
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const angle = t * turns * Math.PI * 2 + Math.PI * 0.3;
+    const r = t * maxR * 0.85;
+    const x = cx + Math.cos(angle) * r;
+    const y = cy + Math.sin(angle) * r;
+    d2 += i === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
   }
+  paths += `<path d="${d2}" stroke="${config.accent}" stroke-width="1.5" fill="none" opacity="0.35" stroke-linecap="round"/>`;
+
+  // Outer endpoint dot
+  const endAngle = turns * Math.PI * 2;
+  paths += `<circle cx="${cx + Math.cos(endAngle) * maxR}" cy="${cy + Math.sin(endAngle) * maxR}" r="3" fill="${config.accent}" opacity="0.6"/>`;
+
+  // Center dot
+  paths += `<circle cx="${cx}" cy="${cy}" r="2" fill="#ffffff" opacity="0.3"/>`;
 
   return paths;
 }
 
 function generateWaveMotif(rng: () => number, w: number, h: number, config: TagConfig): string {
   let paths = '';
-  const waveCount = 4 + Math.floor(rng() * 4);
+  const waveCount = 4 + Math.floor(rng() * 2);
 
   for (let i = 0; i < waveCount; i++) {
-    const t = i / waveCount;
-    const baseY = h * (0.2 + t * 0.6);
-    const amplitude = 15 + rng() * 30;
-    const freq = 2 + rng() * 3;
+    const t = i / (waveCount - 1);
+    const baseY = h * (0.25 + t * 0.5);
+    const amplitude = 10 + rng() * 20;
+    const freq = 1.5 + rng() * 1.5;
     const phase = rng() * Math.PI * 2;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], t);
-    const sat = lerp(config.satRange[0], config.satRange[1], rng());
-    const light = lerp(config.lightRange[0], config.lightRange[1], rng());
+    const isAccent = i === Math.floor(waveCount / 2);
+    const color = isAccent ? config.accent : '#ffffff';
+    const opacity = isAccent ? 0.35 : 0.08 + rng() * 0.06;
+    const strokeW = isAccent ? 1.5 : 1;
 
     let d = '';
     const steps = 50;
@@ -415,16 +345,7 @@ function generateWaveMotif(rng: () => number, w: number, h: number, config: TagC
       d += s === 0 ? `M ${x} ${y}` : ` L ${x} ${y}`;
     }
 
-    paths += `<path d="${d}" stroke="${hslToHex(hue, sat, light)}" stroke-width="${1.5 + rng() * 2}" fill="none" opacity="${0.25 + rng() * 0.35}" stroke-linecap="round"/>`;
-  }
-
-  // Organic floating dots
-  for (let i = 0; i < 12; i++) {
-    const x = rng() * w;
-    const y = rng() * h;
-    const r = 1.5 + rng() * 4;
-    const hue = lerp(config.hueRange[0], config.hueRange[1], rng());
-    paths += `<circle cx="${x}" cy="${y}" r="${r}" fill="${hslToHex(hue, 60, 60)}" opacity="${0.15 + rng() * 0.3}"/>`;
+    paths += `<path d="${d}" stroke="${color}" stroke-width="${strokeW}" fill="none" opacity="${opacity}" stroke-linecap="round"/>`;
   }
 
   return paths;
@@ -450,15 +371,14 @@ export function generatePostSVG(
   const rng = createRng(seed);
   const config = getTagConfig(tags);
 
-  const w = size === 'full' ? 1200 : 400;
-  const h = size === 'full' ? 630 : 200;
+  const w = size === 'full' ? 1200 : 800;
+  const h = size === 'full' ? 400 : 200;
 
-  const bgColor = hslToHex(config.bgHue, config.bgSat, config.bgLight);
   const generator = MOTIF_GENERATORS[config.motif] || MOTIF_GENERATORS.wave;
   const motifContent = generator(rng, w, h, config);
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">
-  <rect width="${w}" height="${h}" fill="${bgColor}"/>
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="100%" preserveAspectRatio="xMidYMid meet" style="display:block">
+  <rect width="${w}" height="${h}" fill="#0a0a0a"/>
   ${motifContent}
 </svg>`;
 }
