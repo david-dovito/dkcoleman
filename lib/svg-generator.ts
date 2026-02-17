@@ -73,7 +73,11 @@ const DEFAULT_CONFIG: TagConfig = {
 };
 
 function getTagConfig(tags: string[]): TagConfig {
-  for (const tag of tags) {
+  // Skip "The 1159" (series identifier, not a content theme) unless it's the only tag
+  const themeTags = tags.filter(t => t !== 'The 1159');
+  const tagsToCheck = themeTags.length > 0 ? themeTags : tags;
+
+  for (const tag of tagsToCheck) {
     if (TAG_CONFIGS[tag]) return TAG_CONFIGS[tag];
   }
   return DEFAULT_CONFIG;
