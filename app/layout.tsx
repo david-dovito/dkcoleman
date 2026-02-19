@@ -174,6 +174,10 @@ export default async function RootLayout({
                       About <Kbd>A</Kbd>
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
+                    <a href="https://wedding.dkcoleman.com" target="_blank" rel="noopener noreferrer" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
+                      Wedding
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
+                    </a>
                     <div className="h-4 w-[1px] bg-border mx-2" />
                     <Nav1159Button kbdClass="ml-2 hidden lg:inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border rounded bg-muted/50 text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary" />
                     <Search items={searchItems} />

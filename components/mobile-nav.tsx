@@ -15,6 +15,7 @@ const navLinks = [
     { href: '/resources', label: 'Resources' },
     { href: '/resume', label: 'Resume' },
     { href: '/about', label: 'About' },
+    { href: 'https://wedding.dkcoleman.com', label: 'Wedding', external: true },
 ];
 
 export function MobileNav() {
@@ -85,27 +86,43 @@ export function MobileNav() {
                 <div className="fixed inset-0 z-[65] md:hidden flex items-center justify-center pointer-events-none">
                     <div className="flex flex-col gap-3 items-center pointer-events-auto">
                         {/* Navigation Pills */}
-                        {navLinks.map((link, index) => (
-                            <Link
-                                key={link.href}
-                                href={link.href}
-                                onClick={closeMenu}
-                                className={`w-40 px-6 py-3 rounded-full backdrop-blur-xl border shadow-xl hover:scale-105 transition-all duration-300 text-center ${
-                                    isClosing
-                                        ? 'animate-[slideOut_0.25s_ease-in_forwards]'
-                                        : 'animate-[slideIn_0.25s_ease-out_forwards]'
-                                } ${pathname === link.href
-                                    ? 'bg-primary/90 border-primary/50 text-primary-foreground shadow-primary/30'
-                                    : 'bg-background/90 border-border/50 hover:border-primary/30 hover:shadow-primary/20'
-                                }`}
-                                style={{
-                                    animationDelay: `${index * 50}ms`,
-                                    opacity: isClosing ? 1 : 0
-                                }}
-                            >
-                                <span className="font-medium whitespace-nowrap">{link.label}</span>
-                            </Link>
-                        ))}
+                        {navLinks.map((link, index) => {
+                            const pillClass = `w-40 px-6 py-3 rounded-full backdrop-blur-xl border shadow-xl hover:scale-105 transition-all duration-300 text-center ${
+                                isClosing
+                                    ? 'animate-[slideOut_0.25s_ease-in_forwards]'
+                                    : 'animate-[slideIn_0.25s_ease-out_forwards]'
+                            } ${pathname === link.href
+                                ? 'bg-primary/90 border-primary/50 text-primary-foreground shadow-primary/30'
+                                : 'bg-background/90 border-border/50 hover:border-primary/30 hover:shadow-primary/20'
+                            }`;
+                            const pillStyle = {
+                                animationDelay: `${index * 50}ms`,
+                                opacity: isClosing ? 1 : 0
+                            };
+                            return link.external ? (
+                                <a
+                                    key={link.href}
+                                    href={link.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onClick={closeMenu}
+                                    className={pillClass}
+                                    style={pillStyle}
+                                >
+                                    <span className="font-medium whitespace-nowrap">{link.label}</span>
+                                </a>
+                            ) : (
+                                <Link
+                                    key={link.href}
+                                    href={link.href}
+                                    onClick={closeMenu}
+                                    className={pillClass}
+                                    style={pillStyle}
+                                >
+                                    <span className="font-medium whitespace-nowrap">{link.label}</span>
+                                </Link>
+                            );
+                        })}
                         {/* 1159 Signup Button */}
                         <button
                             onClick={() => { closeMenu(); openSignupPopup(); }}
