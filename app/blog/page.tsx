@@ -1,4 +1,4 @@
-import { getAllPosts, getAllTags } from '@/lib/blog';
+import { getAllPosts, getAllTags } from '@/lib/queries/blog';
 import { generatePostSVG } from '@/lib/svg-generator';
 import BlogPageClient from './BlogPageClient';
 

@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { BookOpen, Calendar, Filter, X, ArrowRight } from 'lucide-react';
-import { Post } from '@/lib/blog';
+import { Post } from '@/lib/queries/blog';
 import { format } from 'date-fns';
 
 interface BlogPageClientProps {

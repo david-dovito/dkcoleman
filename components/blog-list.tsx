@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Post } from '@/lib/blog';
+import { Post } from '@/lib/queries/blog';
 
 interface BlogListProps {
   posts: Post[];

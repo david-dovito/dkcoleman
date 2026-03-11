@@ -803,3 +803,325 @@ npx shadcn@latest add button              # shadcn/ui
 npx shadcn@latest add @react-bits/avatar  # ReactBits
 npx shadcn@latest add @react-bits/MagicBento-TS-TW  # Magic Bento
 ```
+
+---
+
+## SESSION STATE (2026-02-17)
+
+### Just Completed
+- **GA4 installed** — Measurement ID `G-GV5PKEYQSV`
+  - Added `NEXT_PUBLIC_GA_ID` as GitHub Secret (workflow reads from secrets, NOT `.env.production`)
+  - Also set in `.env.local` and `.env.production` for local dev
+  - `@next/third-parties/google` `<GoogleAnalytics>` component already in `app/layout.tsx` lines 211-213
+  - Triggered rebuild via `gh workflow run deploy.yml`
+
+- **Notion image expiration fix** — `lib/projects.ts` now downloads Notion-hosted images at build time to `public/project-images/` since Notion file URLs are temporary signed S3 URLs (~1hr expiry). External URLs pass through unchanged. `/public/project-images/` is gitignored.
+
+- **Project card image display fix** — `app/projects/ProjectsPageClient.tsx` image section uses `p-4 pb-0` padding with `rounded-xl object-contain` instead of fixed height with `object-cover`.
+
+### Active Issue — Blog SVG Illustrations Broken
+- User reports SVGs changed to "thick brush strokes on white" — they were previously perfect
+- **Likely culprit**: commit `1e6861e` — "Redesign SVG generator with ink-wash brush stroke aesthetic"
+- SVG commit history (newest first):
+  - `1e6861e` — Redesign SVG generator with ink-wash brush stroke aesthetic ← PROBABLY BROKE IT
+  - `e39d4cb` — Fix SVG motif selection to use content theme tag instead of series tag
+  - `650f79f` — fix: Redesign SVG illustrations — minimal black/white + accent color
+  - `4925876` — feat: Add deterministic SVG illustrations to blog posts ← ORIGINAL GOOD VERSION
+- **Action needed**: Investigate what changed in the SVG generator component between `4925876` and `1e6861e`, or revert to the working state. Check `components/` or `lib/` for the SVG generation code.
+
+### Pending Tasks
+1. **Resume narrative toggle** — `lib/resume-narrative.ts` has uncommitted local fixes: `Published`→`published`, `Order`→`number`. Notion DB property names were mismatched. These fixes are unstaged — need to verify they work and commit.
+2. **About page hyperlink support** — mncoleman.com should be a clickable link in the "This Website" section. `lib/about.ts` needs to preserve Notion rich text links.
+3. **HTTPS enforcement** — GitHub Pages certificate should be provisioned; user needs to enable "Enforce HTTPS" in repo settings.
+4. **`components.json`** — Has uncommitted trailing newline change (trivial).
+
+### Uncommitted Changes
+- `components.json` — trailing newline (trivial)
+- `lib/resume-narrative.ts` — property name fixes (`Published`→`published`, `Order`→`number`)
+
+---
+
+## MAJOR UPGRADE: Vercel + Neon + Scheduling System (2026-02-20)
+
+### Overview
+
+Migrating from static GitHub Pages + Notion CMS to **Vercel + Neon PostgreSQL** with a full custom CMS, nav redesign, Typeform-style contact/scheduling intake form, and n8n AI workflow.
+
+### Progress Tracker
+
+| Phase | Status | Description |
+|-------|--------|-------------|
+| **Phase 1** | DONE | Platform migration — next.config.ts, deploy.yml, .env.example, deps installed |
+| **Phase 2a** | DONE | Database schema (`lib/db/schema.ts`) + Drizzle setup (`drizzle.config.ts`) |
+| **Phase 2b** | DONE | Notion → Neon migration script (`scripts/migrate-notion-to-neon.ts`) — run with `npx tsx scripts/migrate-notion-to-neon.ts` |
+| **Phase 2c** | DONE | Replace data layer — 6 query files in `lib/queries/` replace old Notion adapters |
+| **Phase 2d** | DONE | 11 admin API routes in `app/api/admin/` (blog, resources, projects, about, resume, narrative, upload) |
+| **Phase 2e** | DONE | Tabbed CMS: AdminCMS.tsx + BlogEditor, ResourcesEditor, ProjectsEditor, AboutEditor, ResumeEditor, NarrativeEditor |
+| **Phase 2f** | DONE | Cleanup — old Notion lib files removed, ContentEditor.tsx removed, Notion deps kept as devDeps for migration script |
+| **Phase 3** | DONE | Mega-menu nav (`components/nav/mega-menu.tsx`), nav illustrations, grouped mobile nav, Contact keybinding |
+| **Phase 4** | DONE | Typeform-style intake form (`components/contact/intake-form.tsx`), `/contact` page, meeting-requests API, n8n webhook |
+| **Phase 5** | PENDING | n8n AI scheduling workflow (external config — webhook endpoints ready in codebase) |
+
+### Implementation Order
+1. Phase 1 → 2a-c → 4 → 2d-e → 3 → 5
+2. Phases 2d-e, 3, and 4 can run in parallel once 2a-c is done.
+
+### Remaining Steps
+1. **Run migration**: Set up Neon DB, run `npx drizzle-kit push` to create tables, then `npx tsx scripts/migrate-notion-to-neon.ts` to migrate Notion data
+2. **Deploy to Vercel**: Connect repo, set env vars (DATABASE_URL, JWT_SECRET, N8N_MEETING_WEBHOOK_URL, N8N_WEBHOOK_SECRET)
+3. **Configure n8n**: Set up workflow (webhook trigger → AI eval → calendar check → Telegram notify)
+4. **After migration verified**: Can remove `@notionhq/client` and `notion-to-md` from devDependencies
+
+---
+
+### Phase 1: Platform Migration
+
+**Files to change:**
+- `next.config.ts` — Remove `output: 'export'` and `images.unoptimized`. Add `images.remotePatterns`. Keep `trailingSlash: true`.
+- `.github/workflows/deploy.yml` — Replace with scheduled-rebuild workflow that curls a Vercel Deploy Hook (Vercel Git integration handles push deploys).
+- `.env.example` — Add `DATABASE_URL` for Neon.
+- `package.json` — Add `@neondatabase/serverless`, `drizzle-orm`, `drizzle-kit` (dev).
+
+**External setup required:**
+1. Create Neon project, get `DATABASE_URL`
+2. Connect GitHub repo to Vercel, configure env vars
+3. Point `dkcoleman.com` DNS to Vercel
+
+---
+
+### Phase 2a: Database Schema
+
+**New files:** `lib/db/index.ts`, `lib/db/schema.ts`, `drizzle.config.ts`
+
+**Tables:**
+```
+blog_posts:       id, slug (unique), title, date, excerpt, author, tags (jsonb), published, featured, content (md), word_count, reading_time, created_at, updated_at
+resources:        id, name, url, categories (jsonb), description, published, created_at, updated_at
+projects:         id, name, description, url, tech (jsonb), date, published, photo (url), created_at, updated_at
+about_sections:   id, key (unique), title, content, order, updated_at
+resume:           id, title, content (md), last_updated
+resume_narrative: id, title, period, order, icon, icon_type, content (md), published, created_at, updated_at
+meeting_requests: id, name, email, company, reason, preferred_timeframe, additional_context, status, ai_response (jsonb), notified_at, created_at, updated_at
+images:           id, filename, url, content_type, size, entity_type, entity_id, created_at
+```
+
+### Phase 2b: Migration Script
+
+`scripts/migrate-notion-to-neon.ts` — One-time script:
+1. Connects to all 7 Notion sources using existing env vars
+2. Fetches all content (blocks → markdown via `notion-to-md`)
+3. Downloads project images → uploads to Vercel Blob
+4. Inserts into Neon tables
+
+### Phase 2c: Replace Data Layer
+
+Rewrite every `lib/*.ts` Notion file to use Drizzle queries. **Interfaces stay the same** so page components don't change.
+
+| Current file | Replacement |
+|---|---|
+| `lib/notion.ts` (293 lines) | `lib/queries/blog.ts` |
+| `lib/blog.ts` | Merge into `lib/queries/blog.ts` |
+| `lib/resources.ts` | `lib/queries/resources.ts` |
+| `lib/projects.ts` | `lib/queries/projects.ts` |
+| `lib/about.ts` | `lib/queries/about.ts` |
+| `lib/resume.ts` | `lib/queries/resume.ts` |
+| `lib/resume-narrative.ts` | `lib/queries/resume-narrative.ts` |
+
+### Phase 2d: Admin API Routes
+
+Migrate JWT verification from `worker/index.ts` (lines 314-327) into `lib/auth.ts`.
+
+| Route | Methods |
+|---|---|
+| `app/api/admin/blog/route.ts` | GET, POST |
+| `app/api/admin/blog/[id]/route.ts` | GET, PUT, DELETE |
+| `app/api/admin/resources/route.ts` | GET, POST |
+| `app/api/admin/resources/[id]/route.ts` | GET, PUT, DELETE |
+| `app/api/admin/projects/route.ts` | GET, POST |
+| `app/api/admin/projects/[id]/route.ts` | GET, PUT, DELETE |
+| `app/api/admin/about/route.ts` | GET, PUT |
+| `app/api/admin/resume/route.ts` | GET, PUT |
+| `app/api/admin/resume-narrative/route.ts` | GET, POST |
+| `app/api/admin/resume-narrative/[id]/route.ts` | GET, PUT, DELETE |
+| `app/api/admin/upload/route.ts` | POST (Vercel Blob) |
+
+### Phase 2e: Expanded Admin Dashboard
+
+Current admin only edits `data/about.json` via GitHub API. Expand to tabbed CMS:
+
+| Component | Purpose |
+|---|---|
+| `components/admin/AdminCMS.tsx` | Tabbed container |
+| `components/admin/BlogEditor.tsx` | Post list + markdown editor (`@uiw/react-md-editor`) |
+| `components/admin/ResourcesEditor.tsx` | Table with inline add/edit |
+| `components/admin/ProjectsEditor.tsx` | Card grid with image upload |
+| `components/admin/AboutEditor.tsx` | Replaces ContentEditor.tsx |
+| `components/admin/ResumeEditor.tsx` | Single markdown editor |
+| `components/admin/NarrativeEditor.tsx` | Sortable timeline sections |
+
+### Phase 2f: Cleanup
+
+- Remove `@notionhq/client`, `notion-to-md`
+- Remove all `NOTION_*` env vars
+- Delete `data/about.json`
+- Update "This Website" about text
+
+### Phase 3: Navigation Redesign
+
+Two dropdown triggers: **"Content"** (Blog, Projects, Resources) and **"Connect"** (About, Contact, Wedding, 1159).
+
+**New files:**
+- `components/nav/mega-menu.tsx` — Radix NavigationMenu
+- `lib/nav-illustrations.ts` — SVG generators for nav items
+
+**Files changed:**
+- `app/layout.tsx` (lines 156-185) — Replace flat links with `<MegaMenu />`
+- `components/mobile-nav.tsx` — Grouped structure with section headers
+- `components/key-bindings.tsx` — Add `C` shortcut for Contact
+
+**New dep:** `@radix-ui/react-navigation-menu`
+
+### Phase 4: Contact / Scheduling Intake Form
+
+**Typeform-style multi-step form** (`components/contact/intake-form.tsx`):
+1. "What's your name?" — text
+2. "What's your email?" — email
+3. "Where do you work?" — text (optional)
+4. "What brings you here?" — select cards
+5. "When works for you?" — select cards
+6. "Anything else?" — textarea
+
+**New files:**
+- `app/contact/page.tsx`
+- `components/contact/intake-form.tsx`
+- `app/api/meeting-requests/route.ts` — POST → save to DB + fire n8n webhook
+- `app/api/webhooks/n8n/route.ts` — Callback from n8n
+
+**Homepage:** Add 6th bento card `{ id: 'connect', title: 'Schedule a Meeting', link: '/contact' }`. Grid becomes 2 rows of 3.
+
+**New dep:** `framer-motion` (or reuse GSAP)
+
+### Phase 5: n8n AI Scheduling Workflow (External)
+
+Webhook trigger → AI evaluation → Calendar check → Telegram notify David.
+
+**Env vars:** `N8N_MEETING_WEBHOOK_URL`, `N8N_WEBHOOK_SECRET`
+
+**Codebase touchpoints:** webhook POST on form submit (Phase 4) and callback endpoint.
+
+---
+
+### New Dependencies Summary
+
+| Package | Phase | Dev? |
+|---|---|---|
+| `@neondatabase/serverless` | 1 | No |
+| `drizzle-orm` | 1 | No |
+| `drizzle-kit` | 1 | Yes |
+| `@vercel/blob` | 2b | No |
+| `@uiw/react-md-editor` | 2e | No |
+| `@radix-ui/react-navigation-menu` | 3 | No |
+| `framer-motion` | 4 | No |
+
+### Key Architectural Decisions
+
+- **Interfaces stay the same** in Phase 2c so page components (`app/*/page.tsx`) don't change
+- **Keep Cloudflare Worker** running for Telegram auth during transition; replicate JWT verification in `lib/auth.ts`
+- **URL stability**: All page paths stay the same. `trailingSlash: true` preserved.
+- **Keep Notion intact** until Neon is fully verified (data safety net)
+
+### Codebase Reference (for new session context)
+
+**Current data layer files (all talk to Notion):**
+- `lib/notion.ts` (293 lines) — Core Notion client + blog fetching
+- `lib/blog.ts` (23 lines) — Thin adapter re-exporting from notion.ts
+- `lib/resources.ts` (61 lines) — Resources database
+- `lib/projects.ts` (112 lines) — Projects + image download
+- `lib/about.ts` (83 lines) — About sections from DB or fallback
+- `lib/resume.ts` (52 lines) — Resume page → markdown
+- `lib/resume-narrative.ts` (87 lines) — Career timeline sections
+
+**Current interfaces (must be preserved):**
+- `NotionPost` → `{ id, slug, title, date, excerpt, author, tags, published, featured, content, readingTime, wordCount }`
+- `Resource` → `{ id, name, url, categories, description, published }`
+- `Project` → `{ id, name, description, url, tech, date, published, photo }`
+- `AboutData` → `{ introduction, whatIDo, thisWebsite, the1159 }`
+- `Resume` → `{ title, content, lastUpdated }`
+- `NarrativeSection` → `{ id, title, period, order, icon, iconType, content }`
+
+**Layout data fetching** (`app/layout.tsx` lines 81-86): Fetches posts, projects, resources, resume for search index.
+
+**Admin auth:** `worker/index.ts` JWT functions at lines 300-350 (signJwt, verifyJwt, createSignature, btoaUrl, atobUrl).
+
+**Homepage bento cards:** `app/page.tsx` — 5 cards in 3-col grid. Adding 6th card in Phase 4.
+
+---
+
+## SESSION STATE (2026-03-07) — Nav Cleanup + Meeting Booking System
+
+### Branch: `feature/nav-cleanup-meet-booking`
+
+### What Was Built
+
+#### Nav Bar Redesign (3 items: Content, Connect, 1159)
+- **`components/nav/mega-menu.tsx`** — Custom dropdown (replaced Radix NavigationMenu which had z-index/clipping issues with `backdrop-blur` on header). Horizontal card layout, hover-triggered with 150ms close delay, fern-only accent colors. Keyboard shortcuts `1`/`2`/`3`.
+- **`components/key-bindings.tsx`** — Simplified to just `H` for home. Shortcuts 1/2 handled by mega-menu, 3 by signup-popup.
+- **`components/ui/signup-popup.tsx`** — Changed hotkey from `1` to `3`.
+- **`components/mobile-nav.tsx`** — Updated structure: Articles (not Blog), Meet (not Contact), matching new nav hierarchy.
+- **`app/layout.tsx`** — Removed `Nav1159Button` import, added `overflow-visible` to header.
+
+#### Navigation Structure
+- **Content** (1): Articles → `/blog`, Projects → `/projects`, Resources → `https://app.dovito.com` (external)
+- **Connect** (2): Wedding → external, Resume → `/resume`, About → `/about`, Meet → `/meet`
+- **1159** (3): Opens newsletter signup popup
+
+#### Meeting/Booking System
+- **`/meet`** (`app/meet/page.tsx`) — New meeting request form, source: `new`, 6 steps
+- **`/meet/[token]`** (`app/meet/[token]/page.tsx` + `PreapprovedMeet.tsx`) — Preapproved single-use link, 3 steps (name, email, reason). Validates token on load, shows error if used/expired/invalid. Falls back to regular `/meet` with CTA.
+- **`/meet/booking`** (`app/meet/booking/page.tsx`) — "Checking David's availability" page. Polls `GET /api/meeting-requests/[id]` every 3s. Shows: animated loading → time slots (if aligned) OR "David will be in touch" (if not aligned) OR "You're booked!" (if scheduled).
+- **`components/meet/meet-form.tsx`** — Reusable form for both modes. Preapproved skips company/timeframe/context steps.
+- **`components/meet/availability-checker.tsx`** — Polling component with animated rings, cycling progress messages.
+
+#### API Routes (New)
+- **`POST /api/meeting-tokens`** — Admin-only (JWT auth). Creates single-use token with base64url random string, configurable expiry (default 30 days).
+- **`GET /api/meeting-tokens/[token]`** — Public. Returns `{ valid: true }` or reason: `not_found`/`already_used`/`expired`.
+- **`GET /api/meeting-requests/[id]`** — Public. Returns status + aiResponse for polling.
+- **`POST /api/meeting-requests`** — Updated: accepts `source` (new/preapproved) and `token`. Validates and atomically consumes token on preapproved submissions.
+
+#### DB Schema Changes (`lib/db/schema.ts`)
+- **`meeting_requests`** — Added columns: `source` (text, 'new'|'preapproved'), `tokenId` (integer, nullable)
+- **`meeting_tokens`** — New table: `id`, `token` (unique), `label`, `used` (boolean), `usedAt`, `usedByRequestId`, `expiresAt`, `createdAt`
+
+#### Homepage
+- Replaced "Things I've Made" (projects) bento card with "Schedule a Meeting" (connect) card → `/meet`
+- Now 5 cards: hero, connect, blog, resources, resume
+
+#### Nav Illustrations (`lib/nav-illustrations.ts`)
+- Added `meetIllustration()` (calendar grid) and `resumeIllustration()` (document with avatar)
+
+### Known Issues / Still TODO
+1. **DB not connected** — No `DATABASE_URL` in `.env.local`. Need to create Neon project, add connection string, run `npx drizzle-kit push` to create tables (including new `meeting_tokens` table and new columns on `meeting_requests`).
+2. **Meet form rendering** — Form content was rendering off-canvas (slide animation issue). Simplified to direct content swap (no slide animation). May need visual polish — the card renders but verify text is visible after DB connection.
+3. **Mega menu sizing** — User requested larger cards. Current cards use `190px` width per item. May want `220px+` and more padding.
+4. **Mega menu visual depth** — User wanted "less flat, more visually intriguing". Current version has subtle fern hover states and gradient backgrounds. Could add: card shadows on hover, subtle border glow, illustration color transitions.
+5. **Old `/contact` page** — Still exists and works. Could redirect to `/meet` or keep as legacy.
+6. **N8N integration** — Webhook endpoints ready. `POST /api/meeting-requests` fires webhook on submit. `POST /api/webhooks/n8n` receives callbacks. The booking page expects `aiResponse.timeSlots[]` with `{ date, time, duration, calendarLink }` for aligned meetings.
+
+### For N8N Agent Integration
+- Form source IDs: `source: 'new'` or `source: 'preapproved'`
+- Webhook payload includes `{ id, source, name, email, company, reason, preferredTimeframe, additionalContext }`
+- Status flow: `pending` → `processing` → `aligned` (with timeSlots) | `not_aligned` | `scheduled` | `declined`
+- Callback endpoint: `POST /api/webhooks/n8n` with `{ id, status, aiResponse }` and `X-Webhook-Secret` header
+
+### File Inventory (new files this session)
+```
+app/meet/page.tsx
+app/meet/[token]/page.tsx
+app/meet/[token]/PreapprovedMeet.tsx
+app/meet/booking/page.tsx
+app/api/meeting-requests/[id]/route.ts
+app/api/meeting-tokens/route.ts
+app/api/meeting-tokens/[token]/route.ts
+components/meet/meet-form.tsx
+components/meet/availability-checker.tsx
+```

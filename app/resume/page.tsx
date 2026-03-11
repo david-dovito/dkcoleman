@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import ResumeClient from '@/components/resume/ResumeClient';
-import { getNarrativeSections, NarrativeSection } from '@/lib/resume-narrative';
+import { getNarrativeSections, NarrativeSection } from '@/lib/queries/resume-narrative';
 
 export const metadata: Metadata = {
     title: "Resume | David Coleman",

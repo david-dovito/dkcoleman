@@ -6,7 +6,7 @@ import { FallInText } from '@/components/ui/fall-in-text';
 import { BlurText } from '@/components/ui/blur-text';
 import { TextType } from '@/components/ui/text-type';
 import ReactMarkdown from 'react-markdown';
-import type { NarrativeSection } from '@/lib/resume-narrative';
+import type { NarrativeSection } from '@/lib/queries/resume-narrative';
 
 // ── Scroll-triggered fade-in wrapper ──
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {

@@ -8,7 +8,6 @@ export function KeyBindings() {
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            // Don't trigger if user is typing in an input
             const activeElement = document.activeElement;
             const isInput = activeElement && (
                 activeElement.tagName === 'INPUT' ||
@@ -17,36 +16,11 @@ export function KeyBindings() {
             );
 
             if (isInput) return;
-
-            // Ignore if modifier keys are pressed (except for cases like Shift+? for help, but we don't have that yet)
             if (event.ctrlKey || event.metaKey || event.altKey) return;
 
-            const key = event.key.toUpperCase();
-
-            switch (key) {
-                case 'B':
-                    router.push('/blog');
-                    break;
-                case 'P':
-                    router.push('/projects');
-                    break;
-                case 'R':
-                    router.push('/resources');
-                    break;
-                case 'M':
-                    router.push('/resume');
-                    break;
-                case 'A':
-                    router.push('/about');
-                    break;
-                case 'K':
-                    router.push('/brand-kit');
-                    break;
-                case 'H':
-                    router.push('/');
-                    break;
-                default:
-                    break;
+            // 1, 2, 3 are handled by mega-menu.tsx and signup-popup.tsx
+            if (event.key.toUpperCase() === 'H') {
+                router.push('/');
             }
         };
 
@@ -54,5 +28,5 @@ export function KeyBindings() {
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [router]);
 
-    return null; // This component doesn't render anything
+    return null;
 }

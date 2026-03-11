@@ -5,7 +5,7 @@ import { BlurText } from '@/components/ui/blur-text';
 import { ProfileCard } from '@/components/ui/profile-card';
 import { Cpu, Code2, Sparkles, Mail } from 'lucide-react';
 import { openSignupPopup } from '@/components/ui/signup-popup';
-import type { AboutData } from '@/lib/about';
+import type { AboutData } from '@/lib/queries/about';
 
 function MultiParagraph({ text }: { text: string }) {
   const paragraphs = text.split('\n\n').filter(Boolean);

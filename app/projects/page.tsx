@@ -1,4 +1,4 @@
-import { getPublishedProjects } from '@/lib/projects';
+import { getPublishedProjects } from '@/lib/queries/projects';
 import ProjectsPageClient from './ProjectsPageClient';
 
 export const metadata = {

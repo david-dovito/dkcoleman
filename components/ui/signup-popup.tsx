@@ -58,7 +58,7 @@ export default function SignupPopup() {
             // Always allow Escape to close
             if (e.key === 'Escape' && visible) { close(); return; }
             if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-            if (e.key === '1') {
+            if (e.key === '3') {
                 e.preventDefault();
                 setVisible(v => !v);
             }

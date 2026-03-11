@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, RefreshCw, GitCommit, Database, LogOut } from 'lucide-react';
-import { ContentEditor } from './ContentEditor';
+import { Loader2, RefreshCw, Database, LogOut } from 'lucide-react';
+import { AdminCMS } from './AdminCMS';
 
 interface AdminDashboardProps {
     token: string;
@@ -107,14 +107,14 @@ export function AdminDashboard({ token, user, workerUrl, onLogout }: AdminDashbo
                 </Card>
             </div>
 
-            {/* Content Editing Section */}
-            <ContentEditor token={token} workerUrl={workerUrl} />
-
             {result && (
                 <div className={`p-4 rounded-md border ${result.success ? 'bg-green-500/10 border-green-500/20 text-green-600' : 'bg-red-500/10 border-red-500/20 text-red-600'}`}>
                     {result.message}
                 </div>
             )}
+
+            {/* Content Management System */}
+            <AdminCMS token={token} />
         </div>
     );
 }

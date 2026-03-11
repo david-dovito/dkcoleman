@@ -7,16 +7,16 @@ import { GoogleAnalytics } from '@next/third-parties/google';
 import { MobileNav } from '@/components/mobile-nav';
 import { HamburgerButton } from '@/components/hamburger-button';
 import CustomCursor from '@/components/ui/CustomCursor';
-import { Nav1159Button } from '@/components/nav-1159';
 import { ThemeWrapper } from '@/components/theme-wrapper';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { MegaMenu } from '@/components/nav/mega-menu';
 
 import { KeyBindings } from '@/components/key-bindings';
 import { Search, SearchItem } from '@/components/search';
-import { getPublishedPostsWithContent } from '@/lib/notion';
-import { getPublishedProjects } from '@/lib/projects';
-import { getPublishedResources } from '@/lib/resources';
-import { getResume } from '@/lib/resume';
+import { getPublishedPostsWithContent } from '@/lib/queries/blog';
+import { getPublishedProjects } from '@/lib/queries/projects';
+import { getPublishedResources } from '@/lib/queries/resources';
+import { getResume } from '@/lib/queries/resume';
 
 
 export const viewport: Viewport = {
@@ -123,12 +123,6 @@ export default async function RootLayout({
     });
   }
 
-  const Kbd = ({ children }: { children: React.ReactNode }) => (
-    <kbd className="ml-2 hidden lg:inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border rounded bg-muted/50 text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary">
-      {children}
-    </kbd>
-  );
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
@@ -145,8 +139,8 @@ export default async function RootLayout({
               {/* Mobile Navigation - Rendered at root for proper overlay */}
               <MobileNav />
 
-              <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
-                <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-5xl">
+              <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md overflow-visible">
+                <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-5xl overflow-visible">
                   {/* Logo / Brand */}
                   <Link href="/" className="hover:opacity-70 transition-opacity group flex items-center">
                     <img src="/logo.svg" alt="David Coleman" className="h-6 dark:invert" />
@@ -154,32 +148,8 @@ export default async function RootLayout({
 
                   {/* Desktop Navigation - Hidden on mobile */}
                   <nav className="hidden md:flex gap-6 items-center">
-                    <Link href="/blog" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Blog <Kbd>B</Kbd>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </Link>
-                    <Link href="/projects" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Projects <Kbd>P</Kbd>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </Link>
-                    <Link href="/resources" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Resources <Kbd>R</Kbd>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </Link>
-                    <Link href="/resume" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Resume <Kbd>M</Kbd>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </Link>
-                    <Link href="/about" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      About <Kbd>A</Kbd>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </Link>
-                    <a href="https://wedding.dkcoleman.com" target="_blank" rel="noopener noreferrer" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Wedding
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </a>
+                    <MegaMenu />
                     <div className="h-4 w-[1px] bg-border mx-2" />
-                    <Nav1159Button kbdClass="ml-2 hidden lg:inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border rounded bg-muted/50 text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary" />
                     <Search items={searchItems} />
                     <ThemeToggle />
                   </nav>

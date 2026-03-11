@@ -1,4 +1,4 @@
-import { getPublishedResources } from '@/lib/resources';
+import { getPublishedResources } from '@/lib/queries/resources';
 import ResourcesPageClient from './ResourcesPageClient';
 
 export const metadata = {

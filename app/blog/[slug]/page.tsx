@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { getPostBySlug, getAllPosts } from '@/lib/blog';
+import { getPostBySlug, getAllPosts } from '@/lib/queries/blog';
 import { generatePostSVG } from '@/lib/svg-generator';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';

@@ -1,12 +1,18 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  output: 'export',
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.public.blob.vercel-storage.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'prod-files-secure.s3.us-west-2.amazonaws.com',
+      },
+    ],
   },
-  // basePath removed for custom domain (dkcoleman.com)
-  // Previously: '/dkcoleman' for GitHub Pages subpath
   trailingSlash: true,
 };
 

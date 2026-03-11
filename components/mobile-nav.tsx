@@ -8,14 +8,23 @@ import { openSignupPopup } from '@/components/ui/signup-popup';
 import { useTheme } from 'next-themes';
 import { Moon, Sun } from 'lucide-react';
 
-const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/blog', label: 'Blog' },
+const contentLinks = [
+    { href: '/blog', label: 'Articles' },
     { href: '/projects', label: 'Projects' },
     { href: '/resources', label: 'Resources' },
+];
+
+const connectLinks = [
+    { href: 'https://wedding.dkcoleman.com', label: 'Wedding', external: true },
     { href: '/resume', label: 'Resume' },
     { href: '/about', label: 'About' },
-    { href: 'https://wedding.dkcoleman.com', label: 'Wedding', external: true },
+    { href: '/meet', label: 'Meet' },
+];
+
+const allLinks = [
+    { href: '/', label: 'Home' },
+    ...contentLinks,
+    ...connectLinks,
 ];
 
 export function MobileNav() {
@@ -23,25 +32,15 @@ export function MobileNav() {
     const [isClosing, setIsClosing] = useState(false);
     const pathname = usePathname();
     const { theme, setTheme } = useTheme();
-    const toggleMenu = () => {
-        if (isOpen) {
-            closeMenu();
-        } else {
-            setIsOpen(true);
-            setIsClosing(false);
-        }
-    };
 
     const closeMenu = () => {
         setIsClosing(true);
-        // Wait for slide-out animation to complete (last item delay + animation duration)
         setTimeout(() => {
             setIsOpen(false);
             setIsClosing(false);
-        }, 250 + (navLinks.length - 1) * 50); // Last item delay + animation duration
+        }, 250 + (allLinks.length - 1) * 50);
     };
 
-    // Listen for toggle event from external button
     useEffect(() => {
         const handleToggle = () => {
             if (isOpen) {
@@ -57,7 +56,6 @@ export function MobileNav() {
 
     return (
         <>
-            {/* Backdrop */}
             {isOpen && (
                 <div
                     className={`fixed inset-0 bg-background/60 backdrop-blur-sm z-[60] md:hidden transition-opacity duration-300 ${
@@ -67,7 +65,6 @@ export function MobileNav() {
                 />
             )}
 
-            {/* Close Button - Positioned over hamburger */}
             {isOpen && (
                 <button
                     onClick={closeMenu}
@@ -81,12 +78,10 @@ export function MobileNav() {
                 </button>
             )}
 
-            {/* Floating Pills Container */}
             {isOpen && (
                 <div className="fixed inset-0 z-[65] md:hidden flex items-center justify-center pointer-events-none">
                     <div className="flex flex-col gap-3 items-center pointer-events-auto">
-                        {/* Navigation Pills */}
-                        {navLinks.map((link, index) => {
+                        {allLinks.map((link, index) => {
                             const pillClass = `w-40 px-6 py-3 rounded-full backdrop-blur-xl border shadow-xl hover:scale-105 transition-all duration-300 text-center ${
                                 isClosing
                                     ? 'animate-[slideOut_0.25s_ease-in_forwards]'
@@ -99,7 +94,7 @@ export function MobileNav() {
                                 animationDelay: `${index * 50}ms`,
                                 opacity: isClosing ? 1 : 0
                             };
-                            return link.external ? (
+                            return 'external' in link && link.external ? (
                                 <a
                                     key={link.href}
                                     href={link.href}
@@ -132,13 +127,13 @@ export function MobileNav() {
                                     : 'animate-[slideIn_0.25s_ease-out_forwards]'
                             }`}
                             style={{
-                                animationDelay: `${navLinks.length * 50}ms`,
+                                animationDelay: `${allLinks.length * 50}ms`,
                                 opacity: isClosing ? 1 : 0
                             }}
                         >
                             <span className="font-medium whitespace-nowrap">1159</span>
                         </button>
-                        {/* Theme Toggle - hidden on home page */}
+                        {/* Theme Toggle */}
                         {pathname !== '/' && (
                             <button
                                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -148,7 +143,7 @@ export function MobileNav() {
                                         : 'animate-[slideIn_0.25s_ease-out_forwards]'
                                 }`}
                                 style={{
-                                    animationDelay: `${(navLinks.length + 1) * 50}ms`,
+                                    animationDelay: `${(allLinks.length + 1) * 50}ms`,
                                     opacity: isClosing ? 1 : 0
                                 }}
                             >
@@ -161,29 +156,29 @@ export function MobileNav() {
                 </div>
             )}
 
-                    <style jsx global>{`
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
+            <style jsx global>{`
+                @keyframes slideIn {
+                    from {
+                        opacity: 0;
+                        transform: translateX(50px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
 
-        @keyframes slideOut {
-          from {
-            opacity: 1;
-            transform: translateX(0);
-          }
-          to {
-            opacity: 0;
-            transform: translateX(50px);
-          }
-        }
-      `}</style>
-                </>
-            );
+                @keyframes slideOut {
+                    from {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: translateX(50px);
+                    }
+                }
+            `}</style>
+        </>
+    );
 }

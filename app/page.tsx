@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowRight, FileText, BookOpen, Link2, User, Code2 } from 'lucide-react';
+import { ArrowRight, FileText, BookOpen, Link2, User, Calendar } from 'lucide-react';
 import DarkVeil from '@/components/ui/dark-veil';
 import GlassCube from '@/components/ui/glass-cube';
 import ScrollFloat from '@/components/ScrollFloat';
@@ -20,14 +20,14 @@ const bentoCards = [
     col: 0, // grid column for pulse sweep
   },
   {
-    id: 'projects',
-    title: "Things I've Made",
+    id: 'connect',
+    title: 'Schedule a Meeting',
     description:
-      'A collection of projects, experiments, and tools — oftentimes with AI.',
-    label: 'Portfolio',
-    icon: Code2,
+      "Let's connect — tell me about yourself and we'll find a time.",
+    label: 'Connect',
+    icon: Calendar,
     span: 'md:col-span-1 md:row-span-1',
-    link: '/projects',
+    link: '/meet',
     col: 2,
   },
   {
