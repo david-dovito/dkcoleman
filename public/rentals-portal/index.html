@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rentals Portal — Dev Preview · rentals.dkcoleman.com</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   Liquid-glass system · built on Dovito/GHL palette
+   (primary #155EEF, jet #101828, ember/sage/amber accents)
+   ══════════════════════════════════════════════════════════════ */
+:root{
+  --jet:#101828; --ember:#E8620A; --sage:#2E7D52; --amber:#D4970A; --violet:#7C5CF0;
+  --primary:#155EEF; --primary-600:#0F4FCC; --primary-300:#7FA6F7;
+  --fg:#111A2E; --muted:#586074; --muted-2:#8A93A6;
+
+  /* glass */
+  --glass:rgba(255,255,255,.60);
+  --glass-strong:rgba(255,255,255,.80);
+  --glass-soft:rgba(255,255,255,.42);
+  --hair:rgba(17,26,46,.08);
+  --hair-2:rgba(17,26,46,.06);
+  --edge:rgba(255,255,255,.85);          /* top specular edge */
+  --blur:blur(22px) saturate(185%);
+  --blur-lg:blur(30px) saturate(190%);
+
+  --tint-blue:rgba(21,94,239,.10);
+  --tint-blue-2:rgba(21,94,239,.16);
+  --tint-green:rgba(46,125,82,.13);
+  --tint-amber:rgba(212,151,10,.15);
+  --tint-red:rgba(214,69,69,.13);
+  --tint-violet:rgba(124,92,240,.13);
+
+  --sh:0 12px 34px -14px rgba(17,26,46,.28), inset 0 1px 0 var(--edge);
+  --sh-sm:0 6px 18px -10px rgba(17,26,46,.24), inset 0 1px 0 var(--edge);
+  --sh-lg:0 30px 60px -22px rgba(17,26,46,.40), inset 0 1px 0 var(--edge);
+  --r:18px; --r-sm:12px; --r-lg:24px;
+  --sidebar-w:250px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Roboto",system-ui,-apple-system,sans-serif;color:var(--fg);
+  font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(1200px 760px at 50% -14%, rgba(255,255,255,.7), transparent 60%),
+    linear-gradient(180deg,#F4F5F7 0%,#E9EBEF 100%);
+  background-attachment:fixed;
+}
+h1,h2,h3,h4,.head{font-family:"Roboto",system-ui,sans-serif;font-weight:700;letter-spacing:-.01em}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::-webkit-scrollbar{width:11px;height:11px}
+::-webkit-scrollbar-thumb{background:rgba(17,26,46,.16);border-radius:99px;border:3px solid transparent;background-clip:padding-box}
+
+/* ── glass primitive ── */
+.glass{background:var(--glass);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);
+  border:1px solid var(--hair);border-radius:var(--r);box-shadow:var(--sh);position:relative}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,0) 42%)}
+
+/* ── dev banner ── */
+.devbar{height:46px;display:flex;align-items:center;gap:14px;padding:0 18px;font-size:12.5px;
+  position:sticky;top:0;z-index:60;color:#EAF0FF;
+  background:rgba(16,24,40,.72);backdrop-filter:var(--blur);border-bottom:1px solid rgba(255,255,255,.08)}
+.devbar .dot{width:7px;height:7px;border-radius:99px;background:var(--amber);box-shadow:0 0 0 4px rgba(212,151,10,.22)}
+.devbar b{font-weight:600;letter-spacing:.02em}
+.devbar .spacer{flex:1}
+.roleswitch{display:flex;background:rgba(255,255,255,.08);border-radius:99px;padding:3px;border:1px solid rgba(255,255,255,.10)}
+.roleswitch button{color:#C4D0E6;padding:5px 15px;border-radius:99px;font-size:12.5px;font-weight:600;transition:.18s}
+.roleswitch button.on{background:linear-gradient(180deg,#2E6BF5,#155EEF);color:#fff;box-shadow:0 4px 12px -4px rgba(21,94,239,.7),inset 0 1px 0 rgba(255,255,255,.4)}
+.devbar select{background:rgba(255,255,255,.09);color:#fff;border:1px solid rgba(255,255,255,.14);border-radius:9px;padding:6px 9px;font-size:12.5px}
+.devbar select option{color:#101828}
+
+/* ── shell ── */
+.shell{display:flex;height:calc(100vh - 46px)}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;display:flex;flex-direction:column;
+  background:var(--glass-soft);backdrop-filter:var(--blur-lg);-webkit-backdrop-filter:var(--blur-lg);
+  border-right:1px solid var(--hair)}
+.brand{display:flex;align-items:center;gap:11px;padding:20px 18px 16px}
+.brand .logo{width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  font-family:"Roboto";font-weight:700;font-size:16px;color:#fff;
+  background:linear-gradient(150deg,#3B78FF,#0B3FB0);box-shadow:0 8px 18px -6px rgba(21,94,239,.7),inset 0 1px 0 rgba(255,255,255,.5)}
+.brand .n{font-family:"Roboto";font-weight:600;font-size:15.5px;line-height:1.05}
+.brand .s{font-size:11px;color:var(--muted-2)}
+.navlabel{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted-2);padding:16px 22px 7px}
+.nav{padding:2px 12px;display:flex;flex-direction:column;gap:3px}
+.nav a{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:11px;color:var(--muted);
+  font-weight:600;font-size:13.5px;transition:.15s;border:1px solid transparent}
+.nav a svg{width:18px;height:18px;stroke-width:2}
+.nav a:hover{background:rgba(255,255,255,.5);color:var(--fg)}
+.nav a.on{color:var(--fg);border-color:var(--hair);background:rgba(255,255,255,.9);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 5px 14px -8px rgba(17,26,46,.28)}
+.nav a.on svg{color:var(--primary)}
+.nav a .badge{margin-left:auto;background:linear-gradient(180deg,#3A4256,#101828);color:#fff;font-size:11px;font-weight:700;
+  border-radius:99px;min-width:20px;height:20px;display:flex;align-items:center;justify-content:center;padding:0 6px;box-shadow:0 3px 8px -3px rgba(17,26,46,.5)}
+.side-user{margin-top:auto;padding:13px;border-top:1px solid var(--hair);display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;box-shadow:0 4px 10px -4px rgba(17,26,46,.5),inset 0 1px 0 rgba(255,255,255,.4)}
+.side-user .nm{font-size:13px;font-weight:600;line-height:1.15}
+.side-user .em{font-size:11.5px;color:var(--muted-2)}
+
+/* ── main ── */
+.main{flex:1;overflow-y:auto}
+.topbar{height:66px;display:flex;align-items:center;gap:14px;padding:0 30px;position:sticky;top:0;z-index:20;
+  background:rgba(255,255,255,.32);backdrop-filter:var(--blur);-webkit-backdrop-filter:var(--blur);border-bottom:1px solid var(--hair)}
+.topbar h1{font-size:19px;font-weight:600}
+.topbar .sub{font-size:12.5px;color:var(--muted)}
+.topbar .spacer{flex:1}
+.iconbtn{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;color:var(--muted);
+  background:var(--glass-strong);border:1px solid var(--hair);backdrop-filter:var(--blur);box-shadow:var(--sh-sm)}
+.iconbtn:hover{color:var(--fg)}
+.iconbtn svg{width:18px;height:18px}
+.page{padding:28px 30px 64px;max-width:1200px}
+
+/* ── buttons ── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:11px;font-weight:600;font-size:13.5px;
+  transition:.16s;border:1px solid transparent;white-space:nowrap}
+.btn svg{width:16px;height:16px;stroke-width:2.2}
+.btn-primary{color:#fff;background:linear-gradient(180deg,#2E6BF5,#155EEF);border-color:rgba(21,94,239,.5);
+  box-shadow:0 8px 20px -8px rgba(21,94,239,.65),inset 0 1px 0 rgba(255,255,255,.4)}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-ghost{background:var(--glass-strong);border-color:var(--hair);color:var(--fg);backdrop-filter:var(--blur);box-shadow:var(--sh-sm)}
+.btn-ghost:hover{background:#fff}
+.btn-danger{background:var(--glass-strong);border-color:var(--tint-red);color:#C93B3B;box-shadow:var(--sh-sm)}
+.btn-danger:hover{background:rgba(214,69,69,.10)}
+.btn-sm{padding:6px 11px;font-size:12.5px;border-radius:9px}
+.btn-icon{padding:7px;border-radius:9px}
+
+/* ── cards / grid ── */
+.card-p{padding:20px}
+.card-h{padding:17px 20px;border-bottom:1px solid var(--hair);display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.card-h h3{font-size:15px;font-weight:600}
+.card-h .sub{font-size:12.5px;color:var(--muted)}
+.grid{display:grid;gap:18px}
+.g2{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:1000px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+.cardbody{position:relative;z-index:1}
+
+/* ── stat (typographic, NO icon boxes) ── */
+.stat{padding:20px}
+.stat .top{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.stat .lbl{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted-2)}
+.stat .top svg{width:15px;height:15px;color:var(--muted-2);margin-left:auto;stroke-width:2.2}
+.stat .val{font-size:29px;font-weight:700;font-family:"Roboto";letter-spacing:-.025em;line-height:1}
+.stat .bar{height:3px;border-radius:99px;width:44px;margin:12px 0 10px}
+.stat .meta{font-size:12px;color:var(--muted)}
+.delta{font-weight:700}.delta.up{color:var(--sage)}.delta.dn{color:#C93B3B}
+
+/* ── badges (glass tint) ── */
+.badge-s{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:99px;line-height:1.5;border:1px solid transparent}
+.b-blue{background:var(--tint-blue);color:var(--primary-600);border-color:rgba(21,94,239,.18)}
+.b-green{background:var(--tint-green);color:#276B46;border-color:rgba(46,125,82,.2)}
+.b-amber{background:var(--tint-amber);color:#93670A;border-color:rgba(212,151,10,.22)}
+.b-red{background:var(--tint-red);color:#C93B3B;border-color:rgba(214,69,69,.2)}
+.b-gray{background:rgba(17,26,46,.05);color:var(--muted);border-color:var(--hair)}
+.dotb{width:6px;height:6px;border-radius:99px;background:currentColor}
+
+/* ── slim accent list rows (replaces icon tiles) ── */
+.lrow{display:flex;align-items:center;gap:14px;padding:15px 20px;border-bottom:1px solid var(--hair);position:relative}
+.lrow:last-child{border-bottom:none}
+.lrow .acc{width:4px;height:34px;border-radius:99px;flex-shrink:0}
+.lrow .t{font-weight:600;font-size:14px}
+.lrow .d{font-size:12.5px;color:var(--muted)}
+.lrow .amt{margin-left:auto;text-align:right;display:flex;align-items:center;gap:12px}
+.lrow .amt .v{font-weight:700;font-size:15px;font-family:"Roboto"}
+
+/* ── tables ── */
+.tbl{width:100%;border-collapse:collapse}
+.tbl thead th{text-align:left;font-size:11px;font-weight:700;color:var(--muted-2);text-transform:uppercase;letter-spacing:.05em;
+  padding:12px 16px;border-bottom:1px solid var(--hair)}
+.tbl tbody td{padding:13px 16px;border-bottom:1px solid var(--hair);font-size:13.5px;vertical-align:middle}
+.tbl tbody tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover{background:rgba(255,255,255,.4)}
+.tnum{font-variant-numeric:tabular-nums;font-weight:600}
+
+/* ── tabs (glass segmented) ── */
+.tabs{display:inline-flex;gap:3px;padding:4px;border-radius:13px;margin-bottom:22px;
+  background:var(--glass-soft);border:1px solid var(--hair);backdrop-filter:var(--blur);box-shadow:var(--sh-sm)}
+.tabs button{padding:8px 15px;font-size:13px;font-weight:600;color:var(--muted);border-radius:9px;transition:.15s}
+.tabs button:hover{color:var(--fg)}
+.tabs button.on{color:var(--primary-600);background:#fff;box-shadow:var(--sh-sm)}
+
+/* ── kanban ── */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;align-items:start}
+.kcol{border-radius:var(--r);padding:12px;min-height:220px;
+  background:var(--glass-soft);border:1px solid var(--hair);backdrop-filter:var(--blur);box-shadow:inset 0 1px 0 var(--edge)}
+.kcol.drop{outline:2px dashed var(--primary);outline-offset:-3px;background:var(--tint-blue)}
+.kcol-h{display:flex;align-items:center;gap:8px;padding:5px 6px 13px}
+.kcol-h .cnt{margin-left:auto;background:rgba(255,255,255,.7);border:1px solid var(--hair);color:var(--muted);font-size:11.5px;border-radius:99px;padding:1px 9px;font-weight:600}
+.kcard{border-radius:13px;padding:12px;margin-bottom:11px;cursor:grab;
+  background:var(--glass-strong);border:1px solid var(--hair);box-shadow:var(--sh-sm);backdrop-filter:var(--blur);transition:.16s}
+.kcard:hover{box-shadow:var(--sh);transform:translateY(-1px)}
+.kcard:active{cursor:grabbing}
+.kcard.dragging{opacity:.35}
+.kcard h4{font-size:13.5px;font-weight:600;margin-bottom:5px}
+.kcard p{font-size:12.5px;color:var(--muted);margin-bottom:9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kcard .row{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted-2)}
+.kcard .thumb{width:100%;height:104px;border-radius:10px;object-fit:cover;margin-bottom:10px;border:1px solid var(--hair)}
+
+/* ── inline editing ── */
+.ce{border-radius:7px;padding:1px 5px;margin:-1px -5px;transition:.12s;cursor:text;outline:none;
+  border:1px solid transparent;display:inline-block;min-width:8px}
+.ce:hover{background:rgba(255,255,255,.72);border-color:var(--hair);box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+.ce:focus{background:#fff;border-color:var(--primary);box-shadow:0 0 0 3px var(--tint-blue)}
+.ce.num{font-variant-numeric:tabular-nums}
+.isel{appearance:none;background:transparent;border:1px solid transparent;border-radius:8px;padding:3px 24px 3px 8px;font:inherit;font-weight:600;color:inherit;cursor:pointer;transition:.12s;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%238A93A6' stroke-width='2.4'%3E%3Cpath d='M3 5l3 3 3-3'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+.isel:hover{background-color:rgba(255,255,255,.72);border-color:var(--hair)}
+.isel:focus{background-color:#fff;border-color:var(--primary);box-shadow:0 0 0 3px var(--tint-blue);outline:none}
+.editable-hint{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--muted-2)}
+.editable-hint svg{width:12px;height:12px}
+.trash{color:var(--muted-2);padding:5px;border-radius:8px}
+.trash:hover{color:#C93B3B;background:var(--tint-red)}
+.trash svg{width:15px;height:15px}
+.editbtn{color:var(--muted-2);padding:5px;border-radius:8px}
+.editbtn:hover{color:var(--primary);background:var(--tint-blue)}
+.editbtn svg{width:15px;height:15px}
+
+/* ── forms ── */
+label.f{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:6px}
+input.f,select.f,textarea.f{width:100%;padding:10px 12px;border:1px solid var(--hair);border-radius:11px;font-size:13.5px;font-family:inherit;
+  background:var(--glass-strong);color:var(--fg);backdrop-filter:var(--blur)}
+input.f:focus,select.f:focus,textarea.f:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--tint-blue);background:#fff}
+.field{margin-bottom:16px}
+.uploader{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  border:1.5px dashed rgba(17,26,46,.20);border-radius:var(--r);padding:28px 20px;text-align:center;
+  color:var(--muted);cursor:pointer;transition:.16s;background:var(--glass-soft)}
+.uploader:hover{border-color:var(--primary);background:var(--tint-blue);color:var(--primary-600)}
+.uploader.req{border-color:rgba(212,151,10,.55);background:var(--tint-amber)}
+.uploader svg{width:26px;height:26px;margin:0}
+.uploader .up-t{font-weight:600;font-size:13.5px;color:var(--fg)}
+.thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.thumbs .t{position:relative;width:84px;height:84px;border-radius:11px;overflow:hidden;border:1px solid var(--hair)}
+.thumbs .t img{width:100%;height:100%;object-fit:cover}
+.thumbs .t .x{position:absolute;top:3px;right:3px;width:19px;height:19px;border-radius:99px;background:rgba(16,24,40,.72);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* ── payment method ── */
+.pm{display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r);position:relative;
+  background:var(--glass);border:1px solid var(--hair);box-shadow:var(--sh-sm);backdrop-filter:var(--blur)}
+.pm.def{border-color:rgba(21,94,239,.4);box-shadow:0 0 0 3px var(--tint-blue),var(--sh-sm)}
+.pm .chip{width:46px;height:31px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+
+/* ── modal ── */
+.overlay{position:fixed;inset:0;background:rgba(16,24,40,.42);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:80;padding:20px}
+.overlay.show{display:flex}
+.modal{width:100%;max-width:560px;max-height:90vh;overflow-y:auto;border-radius:var(--r-lg);
+  background:var(--glass-strong);backdrop-filter:var(--blur-lg);-webkit-backdrop-filter:var(--blur-lg);
+  border:1px solid var(--edge);box-shadow:var(--sh-lg)}
+.modal-h{padding:20px 24px;border-bottom:1px solid var(--hair);display:flex;align-items:center}
+.modal-h h3{font-size:17px;font-weight:600}
+.modal-h .x{margin-left:auto;color:var(--muted);padding:4px;border-radius:8px}
+.modal-h .x:hover{background:rgba(17,26,46,.06)}
+.modal-b{padding:24px}
+.modal-f{padding:16px 24px;border-top:1px solid var(--hair);display:flex;gap:10px;justify-content:flex-end}
+
+/* ── toast ── */
+.toast{position:fixed;bottom:24px;right:24px;padding:13px 18px;border-radius:14px;display:flex;align-items:center;gap:10px;
+  font-size:13.5px;font-weight:500;z-index:90;transform:translateY(140%);transition:.34s cubic-bezier(.2,.9,.2,1);
+  color:#EAF0FF;background:rgba(16,24,40,.82);backdrop-filter:var(--blur);border:1px solid rgba(255,255,255,.12);box-shadow:var(--sh-lg)}
+.toast.show{transform:translateY(0)}
+.toast svg{width:18px;height:18px;color:#5FD08A}
+
+/* ── misc ── */
+.hint{font-size:12px;color:var(--muted-2)}
+.timeline{display:flex;flex-direction:column}
+.tl{display:flex;gap:12px;position:relative;padding-bottom:18px}
+.tl:last-child{padding-bottom:0}
+.tl .dot{width:26px;height:26px;border-radius:99px;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;
+  background:var(--glass-strong);border:1px solid var(--hair);box-shadow:var(--sh-sm)}
+.tl .dot svg{width:13px;height:13px}
+.tl::before{content:"";position:absolute;left:12.5px;top:26px;bottom:0;width:2px;background:var(--hair)}
+.tl:last-child::before{display:none}
+.tl .c .t{font-weight:600;font-size:13.5px}
+.tl .c .d{font-size:12px;color:var(--muted-2)}
+.docrow{display:flex;align-items:center;gap:13px;padding:13px 16px;border-radius:var(--r);margin-bottom:10px;
+  background:var(--glass);border:1px solid var(--hair);box-shadow:var(--sh-sm);backdrop-filter:var(--blur)}
+.docrow .fic{width:34px;height:42px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#C93B3B;flex-shrink:0;
+  background:var(--tint-red);border:1px solid rgba(214,69,69,.18)}
+.docrow .fic svg{width:17px;height:17px}
+.sectionhead{display:flex;align-items:center;gap:10px;margin:6px 0 16px}
+.sectionhead svg{width:18px;height:18px}
+.sectionhead h2{font-size:16px;font-weight:600}
+.flex{display:flex}.ac{align-items:center}.jb{justify-content:space-between}.g8{gap:8px}.g12{gap:12px}.wrap{flex-wrap:wrap}
+.spacer{flex:1}.hide{display:none!important}.mb{margin-bottom:18px}.mt{margin-top:18px}
+.tile{padding:12px 14px;border-radius:13px;background:var(--glass-soft);border:1px solid var(--hair)}
+.tile .k{font-size:11.5px;color:var(--muted-2);font-weight:600}
+.tile .v{font-weight:700;font-family:"Roboto";font-size:16px}
+</style>
+</head>
+<body>
+
+<div class="devbar">
+  <span class="dot"></span><b>DEV PREVIEW</b>
+  <span style="opacity:.65">rentals.dkcoleman.com · no auth · <span class="editable-hint" style="color:#9FB2D6"><i data-lucide="pencil"></i>click any value to edit</span></span>
+  <button onclick="resetDemo()" style="color:#9FB2D6;font-size:12px;display:inline-flex;align-items:center;gap:5px" title="Reset demo data"><i data-lucide="rotate-ccw" style="width:13px;height:13px"></i> Reset</button>
+  <span class="spacer"></span>
+  <span style="opacity:.7">View as:</span>
+  <div class="roleswitch"><button id="rRenter" class="on" onclick="setRole('renter')">Renter</button><button id="rAdmin" onclick="setRole('admin')">Admin / Mgmt</button></div>
+  <select id="ctxSelect" onchange="onCtxChange()"></select>
+</div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">R</div><div><div class="n">Rentals</div><div class="s">by DK Coleman</div></div></div>
+    <div id="navWrap"></div>
+    <div class="side-user">
+      <div class="avatar" id="suAv" style="background:linear-gradient(150deg,#3B78FF,#0B3FB0)">DC</div>
+      <div style="min-width:0"><div class="nm" id="suName">—</div><div class="em" id="suEmail">—</div></div>
+      <span class="spacer"></span>
+      <button class="iconbtn" style="width:32px;height:32px;box-shadow:none;background:transparent;border:none" title="Sign out"><i data-lucide="log-out"></i></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div><h1 id="pgTitle">Dashboard</h1><div class="sub" id="pgSub">Welcome back</div></div>
+      <span class="spacer"></span>
+      <button class="iconbtn" title="Search"><i data-lucide="search"></i></button>
+      <button class="iconbtn" title="Notifications"><i data-lucide="bell"></i></button>
+    </div>
+    <div class="page" id="page"></div>
+  </main>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"><i data-lucide="check-circle-2"></i><span id="toastMsg"></span></div>
+
+<script>
+/* ══════════ MOCK DATA (stands in for Supabase rentals.* tables) ══════════ */
+const DB={
+  properties:[
+    {id:'p1',name:'Mia Casa',addr:'168 Mia Ln, Johnstown, CO 80534',floorplan:'Orchid · 4bd / 2.5ba',baseRent:2950,leaseDay:15,utilDay:25,utilEst:185,tenant:'t1',status:'Occupied'},
+    {id:'p2',name:'Ledge Rock 204',addr:'204 Slate Dr, Johnstown, CO 80534',floorplan:'Aspen · 3bd / 2ba',baseRent:2400,leaseDay:1,utilDay:20,utilEst:140,tenant:'t2',status:'Occupied'},
+  ],
+  tenants:[
+    {id:'t1',name:'Jordan Ellis',email:'jordan.ellis@email.com',phone:'(970) 555-0142',property:'p1',moveIn:'2026-05-01',role:'Renter',color:'linear-gradient(150deg,#3B78FF,#0B3FB0)'},
+    {id:'t2',name:'Priya Nair',email:'priya.nair@email.com',phone:'(970) 555-0198',property:'p2',moveIn:'2026-03-15',role:'Renter',color:'linear-gradient(150deg,#39B67A,#1B6B44)'},
+  ],
+  admin:{name:'David Coleman',email:'david@dovito.com',color:'linear-gradient(150deg,#2B3346,#101828)'},
+  pmethods:[
+    {id:'m1',tenant:'t1',type:'card',brand:'VISA',last4:'4242',exp:'08/27',def:true},
+    {id:'m2',tenant:'t1',type:'ach',bank:'Chase',last4:'6789',def:false},
+  ],
+  schedule:[
+    {id:'s1',tenant:'t1',label:'Base Lease',amount:2950,date:'2026-07-15',recur:'Monthly · 15th',type:'lease'},
+    {id:'s2',tenant:'t1',label:'Utilities (RUBS)',amount:185,date:'2026-07-25',recur:'Monthly · 25th',type:'util',est:true},
+    {id:'s3',tenant:'t1',label:'Base Lease',amount:2950,date:'2026-08-15',recur:'Monthly · 15th',type:'lease'},
+  ],
+  invoices:[
+    {id:'INV-2041',tenant:'t1',label:'Base Lease — June',amount:2950,date:'2026-06-15',status:'Paid',method:'VISA ·· 4242'},
+    {id:'INV-2042',tenant:'t1',label:'Utilities — June',amount:172,date:'2026-06-25',status:'Paid',method:'VISA ·· 4242'},
+    {id:'INV-1998',tenant:'t1',label:'Base Lease — May',amount:2950,date:'2026-05-15',status:'Paid',method:'ACH ·· 6789'},
+    {id:'INV-1999',tenant:'t1',label:'Utilities — May',amount:168,date:'2026-05-25',status:'Paid',method:'ACH ·· 6789'},
+    {id:'INV-1955',tenant:'t1',label:'Base Lease — Apr',amount:2950,date:'2026-04-15',status:'Paid',method:'ACH ·· 6789'},
+  ],
+  tickets:[
+    {id:'TK-118',tenant:'t1',property:'p1',title:'Kitchen faucet dripping',cat:'Plumbing',desc:'The kitchen faucet has a steady drip at the base even when fully off.',stage:'new',created:'2026-06-28',photo:'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&q=60'},
+    {id:'TK-117',tenant:'t1',property:'p1',title:'Garage door remote not pairing',cat:'Electrical',desc:'New remote will not pair with the opener. Wall button works fine.',stage:'received',created:'2026-06-24',photo:'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=400&q=60'},
+    {id:'TK-114',tenant:'t2',property:'p2',title:'HVAC filter replacement',cat:'HVAC',desc:'Filter looks overdue, airflow weak upstairs.',stage:'received',created:'2026-06-20',photo:'https://images.unsplash.com/photo-1631545806609-c2b999cddd50?w=400&q=60'},
+    {id:'TK-109',tenant:'t1',property:'p1',title:'Loose stair railing',cat:'Carpentry',desc:'Upstairs railing has ~1in of play at the top bracket.',stage:'completed',created:'2026-06-10',photo:'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=400&q=60'},
+    {id:'TK-101',tenant:'t2',property:'p2',title:'Bedroom window screen torn',cat:'General',desc:'Screen in the primary bedroom is torn at the corner.',stage:'completed',created:'2026-05-30',photo:'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=400&q=60'},
+  ],
+  documents:[
+    {id:'d1',property:'p1',name:'Residential Lease Agreement.pdf',type:'Lease',size:'412 KB',date:'2026-05-01',shared:true},
+    {id:'d2',property:'p1',name:'Ledge Rock HOA — CCRs.pdf',type:'HOA',size:'1.8 MB',date:'2026-05-01',shared:true},
+    {id:'d3',property:'p1',name:'Ledge Rock — Rules & Regs.pdf',type:'HOA',size:'640 KB',date:'2026-05-01',shared:true},
+    {id:'d4',property:'p2',name:'Residential Lease Agreement.pdf',type:'Lease',size:'405 KB',date:'2026-03-15',shared:true},
+  ],
+};
+const STAGES={new:{t:'New',cls:'b-gray',ic:'inbox',c:'#64748B'},received:{t:'Received',cls:'b-amber',ic:'wrench',c:'var(--amber)'},completed:{t:'Completed',cls:'b-green',ic:'check-circle-2',c:'var(--sage)'}};
+const CATS=['Plumbing','Electrical','HVAC','Appliance','Carpentry','General'];
+const NUM=new Set(['baseRent','utilEst','amount','leaseDay','utilDay']);
+const fmt=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmt0=n=>'$'+Number(n).toLocaleString('en-US');
+const dfmt=s=>new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+const dshort=s=>new Date(s+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const ord=n=>{const s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);};
+
+/* ══════════ inline-edit helpers ══════════ */
+function ce(coll,id,key,val,cls=''){return `<span class="ce ${cls}" contenteditable="true" spellcheck="false"
+  onblur="upd('${coll}','${id}','${key}',this.textContent)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">${val}</span>`;}
+function money(coll,id,key,val){return `$${ce(coll,id,key,val,'num')}`;}
+function isel(coll,id,key,cur,opts){return `<select class="isel" onchange="upd('${coll}','${id}','${key}',this.value)">`+
+  opts.map(o=>`<option ${o===cur?'selected':''}>${o}</option>`).join('')+`</select>`;}
+function upd(coll,id,key,val){
+  const rec=DB[coll].find(x=>x.id===id); if(!rec)return;
+  rec[key]=NUM.has(key)?(parseFloat(String(val).replace(/[^0-9.]/g,''))||0):String(val).trim();
+  render();
+}
+function del(coll,id){DB[coll]=DB[coll].filter(x=>x.id!==id);render();toast('Deleted');}
+let _seq=500; const nid=p=>p+(++_seq);
+
+/* ══════════ state + router ══════════ */
+let ROLE='renter',CTX='t1',VIEW='dashboard',TAB={};
+const NAV={
+  renter:[
+    {id:'dashboard',t:'Dashboard',ic:'layout-dashboard'},
+    {id:'billing',t:'Billing',ic:'credit-card'},
+    {id:'tickets',t:'Maintenance',ic:'wrench',badge:()=>ticketsFor().filter(x=>x.stage!=='completed').length},
+    {id:'documents',t:'Documents',ic:'folder'},
+    {id:'profile',t:'Profile',ic:'user-round'},
+  ],
+  admin:[
+    {id:'a_dashboard',t:'Dashboard',ic:'layout-dashboard'},
+    {id:'a_tickets',t:'Maintenance',ic:'square-kanban',badge:()=>DB.tickets.filter(x=>x.stage!=='completed').length},
+    {id:'a_billing',t:'Billing',ic:'credit-card'},
+    {id:'a_properties',t:'Properties',ic:'building-2'},
+    {id:'a_users',t:'Users',ic:'users'},
+  ],
+};
+const curTenant=()=>DB.tenants.find(t=>t.id===CTX)||DB.tenants[0];
+const ticketsFor=()=>DB.tickets.filter(t=>t.tenant===CTX);
+const propOf=id=>DB.properties.find(p=>p.id===id);
+const tenantOf=id=>DB.tenants.find(t=>t.id===id);
+
+function setRole(r){ROLE=r;
+  document.getElementById('rRenter').classList.toggle('on',r==='renter');
+  document.getElementById('rAdmin').classList.toggle('on',r==='admin');
+  VIEW=r==='renter'?'dashboard':'a_dashboard';buildCtxSelect();render();}
+function buildCtxSelect(){const s=document.getElementById('ctxSelect');
+  if(ROLE==='renter'){s.innerHTML=DB.tenants.map(t=>`<option value="${t.id}">${t.name} — ${propOf(t.property).name}</option>`).join('');
+    CTX=DB.tenants.find(t=>t.id===CTX)?CTX:'t1';}
+  else{s.innerHTML=`<option value="all">All properties</option>`+DB.properties.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');CTX='all';}
+  s.value=CTX;}
+function onCtxChange(){CTX=document.getElementById('ctxSelect').value;render();}
+function go(v){VIEW=v;render();}
+
+function render(){
+  const items=NAV[ROLE];
+  document.getElementById('navWrap').innerHTML=`<div class="navlabel">${ROLE==='renter'?'My Home':'Management'}</div><nav class="nav">`+
+    items.map(i=>{const b=i.badge?i.badge():0;
+      return `<a class="${VIEW===i.id?'on':''}" onclick="go('${i.id}')"><i data-lucide="${i.ic}"></i><span>${i.t}</span>${b?`<span class="badge">${b}</span>`:''}</a>`;}).join('')+`</nav>`;
+  if(ROLE==='renter'){const t=curTenant();setSU(t.name,t.email,t.color,initials(t.name));}
+  else setSU(DB.admin.name,DB.admin.email,DB.admin.color,'DC');
+  const map={dashboard:renterDash,billing:renterBilling,tickets:renterTickets,documents:renterDocs,profile:renterProfile,
+    a_dashboard:adminDash,a_tickets:adminTickets,a_billing:adminBilling,a_properties:adminProps,a_users:adminUsers};
+  (map[VIEW]||renterDash)();
+  lucide.createIcons();
+  persist();
+}
+function setSU(n,e,c,i){document.getElementById('suName').textContent=n;document.getElementById('suEmail').textContent=e;
+  const a=document.getElementById('suAv');a.style.background=c;a.textContent=i;}
+const initials=n=>n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const setHead=(t,s)=>{document.getElementById('pgTitle').textContent=t;document.getElementById('pgSub').textContent=s;};
+const set=h=>document.getElementById('page').innerHTML=h;
+
+/* stat card — typographic, accent underline, no icon tile */
+function stat(label,val,meta,accent,icon){return `<div class="glass stat cardbody">
+  <div class="top"><span class="lbl">${label}</span>${icon?`<i data-lucide="${icon}"></i>`:''}</div>
+  <div class="val">${val}</div><div class="bar" style="background:linear-gradient(90deg,rgba(17,26,46,.30),transparent)"></div>
+  <div class="meta">${meta}</div></div>`;}
+function accRow(color,inner,amt){return `<div class="lrow"><span class="acc" style="background:${color}"></span>${inner}${amt}</div>`;}
+function tl(ic,c,t,d){return `<div class="tl"><div class="dot" style="color:${c}"><i data-lucide="${ic}"></i></div><div class="c"><div class="t">${t}</div><div class="d">${d}</div></div></div>`;}
+
+/* ══════════ RENTER · DASHBOARD ══════════ */
+function renterDash(){
+  const t=curTenant(),p=propOf(t.property);
+  const sched=DB.schedule.filter(s=>s.tenant===t.id).sort((a,b)=>a.date<b.date?-1:1);
+  const next=sched[0],openT=ticketsFor().filter(x=>x.stage!=='completed').length;
+  const paid=DB.invoices.filter(i=>i.tenant===t.id).reduce((a,b)=>a+b.amount,0);
+  setHead('Dashboard','Welcome back, '+t.name.split(' ')[0]);
+  set(`<div class="grid g3 mb">
+    ${stat('Next charge',next?fmt(next.amount):'—',next?`${next.label} · ${dfmt(next.date)}`:'','var(--primary)','calendar-clock')}
+    ${stat('Paid this year',fmt(paid),`${DB.invoices.filter(i=>i.tenant===t.id).length} invoices · <span class="delta up">on time</span>`,'var(--sage)','receipt')}
+    ${stat('Open requests',openT+'',openT?'In progress':'All clear','var(--amber)','wrench')}
+  </div>
+  <div class="grid" style="grid-template-columns:1.45fr 1fr">
+    <div class="glass"><div class="card-h"><h3>Upcoming charges</h3><span class="sub">Auto-scheduled</span><span class="spacer"></span>
+      <button class="btn btn-ghost btn-sm" onclick="go('billing')">Billing <i data-lucide="arrow-right"></i></button></div>
+      <div class="cardbody">${sched.map(schedRow).join('')}</div></div>
+    <div class="glass card-p cardbody">
+      <div class="flex ac g12 mb"><div class="avatar" style="width:46px;height:46px;border-radius:14px;background:linear-gradient(150deg,#3B78FF,#0B3FB0)"><i data-lucide="home" style="width:21px;height:21px"></i></div>
+        <div><div style="font-weight:600;font-size:15px">${p.name}</div><div class="hint">${p.floorplan}</div></div></div>
+      <div class="hint mb" style="line-height:1.6">${p.addr}</div>
+      <div class="grid g2" style="gap:10px">
+        <div class="tile"><div class="k">Monthly rent</div><div class="v">${fmt0(p.baseRent)}</div></div>
+        <div class="tile"><div class="k">Move-in</div><div class="v">${dshort(t.moveIn)}</div></div></div>
+      <button class="btn btn-primary mt" style="width:100%" onclick="go('tickets');newTicket()"><i data-lucide="plus"></i> New maintenance request</button>
+    </div></div>
+  <div class="sectionhead mt"><h2>Recent activity</h2></div>
+  <div class="glass"><div class="card-p cardbody"><div class="timeline">
+    ${tl('check-circle-2','var(--sage)','Utilities — June paid','$172.00 · VISA ·· 4242 · Jun 25')}
+    ${tl('wrench','var(--amber)','Request received: Garage door remote','Moved to Received · Jun 24')}
+    ${tl('check-circle-2','var(--sage)','Base Lease — June paid','$2,950.00 · VISA ·· 4242 · Jun 15')}
+    ${tl('folder','var(--primary)','Lease agreement shared','Available in Documents · May 1')}
+  </div></div></div>`);
+}
+function schedRow(s,editable){
+  const color=s.type==='lease'?'#64748B':'var(--amber)';
+  const inner=`<div><div class="t">${editable?ce('schedule',s.id,'label',s.label):s.label}${s.est?' <span class="badge-s b-gray">est.</span>':''}</div><div class="d">${s.recur}</div></div>`;
+  const amt=`<div class="amt"><div><div class="v">${editable?money('schedule',s.id,'amount',s.amount):fmt(s.amount)}</div><div class="d" style="text-align:right">${dfmt(s.date)}</div></div>${editable?`<button class="editbtn" onclick="chargeModal('${s.id}')" title="Edit charge"><i data-lucide="pencil"></i></button><button class="trash" onclick="del('schedule','${s.id}')"><i data-lucide="trash-2"></i></button>`:''}</div>`;
+  return accRow(color,inner,amt);
+}
+
+/* ══════════ RENTER · BILLING ══════════ */
+function renterBilling(){
+  setHead('Billing','Payment methods, upcoming charges & receipts');
+  const tab=TAB.billing||'schedule';
+  set(`<div class="tabs">${tb('billing','schedule','Upcoming')}${tb('billing','methods','Payment methods')}${tb('billing','history','History & receipts')}</div><div id="bb"></div>`);
+  billBody(tab);
+}
+const tb=(v,id,l)=>`<button class="${(TAB[v]||defTab(v))===id?'on':''}" onclick="TAB['${v}']='${id}';render()">${l}</button>`;
+const defTab=v=>({billing:'schedule',a_billing:'overview'})[v];
+function billBody(tab){
+  const t=curTenant(),el=document.getElementById('bb');
+  if(tab==='schedule'){const sched=DB.schedule.filter(s=>s.tenant===t.id).sort((a,b)=>a.date<b.date?-1:1);
+    el.innerHTML=`<div class="glass mb"><div class="card-h"><h3>Scheduled charges</h3><span class="sub">Auto-charged to default method</span><span class="spacer"></span>
+        <button class="btn btn-ghost btn-sm" onclick="chargeModal()"><i data-lucide="plus"></i> Add</button></div>
+      <div class="cardbody">${sched.map(s=>schedRow(s,true)).join('')||'<div class="hint" style="padding:18px">No scheduled charges.</div>'}</div></div>
+      <div class="glass card-p cardbody flex ac g12" style="background:var(--glass-soft)">
+        <i data-lucide="shield-check" style="color:var(--primary);width:22px;height:22px"></i>
+        <div><div style="font-weight:600">Autopay is on</div><div class="hint">Base lease bills on the 15th, utilities on the 25th. Receipt emailed after each charge.</div></div>
+        <span class="spacer"></span><button class="btn btn-ghost btn-sm">Manage autopay</button></div>`;}
+  if(tab==='methods'){const pms=DB.pmethods.filter(m=>m.tenant===t.id);
+    el.innerHTML=`<div class="flex jb ac mb"><div class="hint">Cards & bank accounts on file. ACH avoids card fees.</div>
+      <button class="btn btn-primary btn-sm" onclick="addMethod('${t.id}')"><i data-lucide="plus"></i> Add method</button></div>
+      <div class="grid" style="gap:12px">${pms.map(pmCard).join('')||'<div class="hint">No methods yet.</div>'}</div>`;}
+  if(tab==='history'){const inv=DB.invoices.filter(i=>i.tenant===t.id);
+    el.innerHTML=`<div class="glass"><div class="card-h"><h3>Payment history</h3><span class="spacer"></span><button class="btn btn-ghost btn-sm"><i data-lucide="download"></i> Export</button></div>
+      <div class="cardbody"><table class="tbl"><thead><tr><th>Invoice</th><th>Description</th><th>Date</th><th>Method</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+      <tbody>${inv.map(i=>`<tr><td class="tnum" style="color:var(--muted)">${i.id}</td><td style="font-weight:600">${i.label}</td>
+        <td>${dfmt(i.date)}</td><td class="hint">${i.method}</td><td class="tnum">${fmt(i.amount)}</td>
+        <td><span class="badge-s b-green"><span class="dotb"></span>${i.status}</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="toast('Receipt ${i.id} downloaded')"><i data-lucide="download"></i></button></td></tr>`).join('')}</tbody></table></div></div>`;}
+  lucide.createIcons();
+}
+function pmCard(m){const isCard=m.type==='card';const bg=isCard?(m.brand==='VISA'?'#1A1F71':'#EB001B'):'linear-gradient(150deg,#39B67A,#1B6B44)';
+  return `<div class="pm ${m.def?'def':''} cardbody"><div class="chip" style="background:${bg}">${isCard?m.brand:'ACH'}</div>
+    <div><div style="font-weight:600">${isCard?m.brand+' ending '+m.last4:m.bank+' ·· '+m.last4}</div><div class="hint">${isCard?'Expires '+m.exp:'Checking · ACH'}</div></div>
+    <span class="spacer"></span>
+    ${m.def?'<span class="badge-s b-blue">Default</span>':`<button class="btn btn-ghost btn-sm" onclick="makeDefault('${m.id}')">Make default</button>`}
+    <button class="trash" onclick="del('pmethods','${m.id}')"><i data-lucide="trash-2"></i></button></div>`;}
+function makeDefault(id){const m=DB.pmethods.find(x=>x.id===id);DB.pmethods.forEach(x=>{if(x.tenant===m.tenant)x.def=false});m.def=true;render();toast('Default updated');}
+const gv=id=>document.getElementById(id).value;
+function chargeModal(id){
+  const editing=!!id;
+  const defT=DB.tenants.find(t=>t.id===CTX)?CTX:(CTX!=='all'&&propOf(CTX)?(propOf(CTX).tenant||DB.tenants[0].id):DB.tenants[0].id);
+  const s=editing?DB.schedule.find(x=>x.id===id):{label:'Base Lease',tenant:defT,type:'lease',amount:2950,date:'2026-08-15'};
+  const day=new Date(s.date+'T12:00').getDate();
+  openModal(editing?'Edit charge':'Add charge',`
+    <div class="field"><label class="f">Description</label><input class="f" id="chLabel" value="${s.label}" placeholder="e.g. Base Lease"></div>
+    <div class="grid g2">
+      <div class="field"><label class="f">Tenant</label><select class="f" id="chTenant">${DB.tenants.map(t=>`<option value="${t.id}" ${t.id===s.tenant?'selected':''}>${t.name} — ${propOf(t.property).name}</option>`).join('')}</select></div>
+      <div class="field"><label class="f">Type</label><select class="f" id="chType"><option value="lease" ${s.type==='lease'?'selected':''}>Base Lease</option><option value="util" ${s.type==='util'?'selected':''}>Utilities (RUBS)</option></select></div>
+    </div>
+    <div class="grid g2">
+      <div class="field"><label class="f">Amount</label><input class="f" id="chAmount" value="${s.amount}" inputmode="decimal"></div>
+      <div class="field"><label class="f">Bills on (day of month)</label><input class="f" id="chDay" value="${day}" inputmode="numeric"></div>
+    </div>
+    <div class="field"><label class="f">Next charge date</label><input class="f" type="date" id="chDate" value="${s.date}"></div>
+    <div class="editable-hint"><i data-lucide="credit-card"></i> Runs automatically through Stripe on this schedule.</div>`,
+    `${editing?`<button class="btn btn-danger" onclick="del('schedule','${id}');closeModal()"><i data-lucide="trash-2"></i> Delete</button>`:''}<span class="spacer"></span>
+     <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-primary" onclick="saveCharge('${editing?id:''}')">${editing?'Save charge':'Add charge'}</button>`);
+}
+function saveCharge(id){
+  const type=gv('chType'), day=Math.min(31,Math.max(1,parseInt(gv('chDay'))||1));
+  const data={label:gv('chLabel').trim()||'Charge', tenant:gv('chTenant'), type,
+    amount:parseFloat(gv('chAmount').replace(/[^0-9.]/g,''))||0, date:gv('chDate')||'2026-08-01',
+    recur:'Monthly · '+ord(day), est:type==='util'};
+  if(id){Object.assign(DB.schedule.find(x=>x.id===id),data);} else DB.schedule.push({id:nid('s'),...data});
+  closeModal();render();toast(id?'Charge updated':'Charge added');
+}
+function addSchedule(){chargeModal();}
+function addMethod(tid){openModal('Add / update payment method',`
+    <div class="tabs" style="margin-bottom:18px"><button class="on" onclick="pmTab(this,'card')">Card</button><button onclick="pmTab(this,'ach')">Bank (ACH)</button></div>
+    <div id="pmCard"><div class="field"><label class="f">Card number</label><input class="f" placeholder="1234 1234 1234 1234"></div>
+      <div class="grid g2"><div class="field"><label class="f">Expiry</label><input class="f" placeholder="MM / YY"></div><div class="field"><label class="f">CVC</label><input class="f" placeholder="CVC"></div></div>
+      <div class="field"><label class="f">Name on card</label><input class="f" placeholder="Full name"></div></div>
+    <div id="pmAch" class="hide"><div class="field"><label class="f">Account holder</label><input class="f" placeholder="Full name"></div>
+      <div class="field"><label class="f">Routing number</label><input class="f" placeholder="9 digits"></div>
+      <div class="field"><label class="f">Account number</label><input class="f" placeholder="Account number"></div></div>
+    <div class="editable-hint"><i data-lucide="lock"></i> Secured by Stripe — card details never touch our servers.</div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="saveMethod('${tid}')">Save method</button>`);}
+function pmTab(b,w){[...b.parentElement.children].forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  document.getElementById('pmCard').classList.toggle('hide',w!=='card');document.getElementById('pmAch').classList.toggle('hide',w!=='ach');}
+function saveMethod(tid){DB.pmethods.push({id:nid('m'),tenant:tid,type:'card',brand:'VISA',last4:'0000',exp:'01/30',def:false});closeModal();render();toast('Payment method saved');}
+
+/* ══════════ RENTER · TICKETS ══════════ */
+function renterTickets(){
+  setHead('Maintenance','Track your requests through each stage');
+  set(`<div class="flex jb ac mb"><div class="hint">Requests move New → Received → Completed as we work them.</div>
+    <button class="btn btn-primary" onclick="newTicket()"><i data-lucide="plus"></i> New request</button></div><div id="kb"></div>`);
+  renderKanban('kb',ticketsFor(),false);
+}
+function newTicket(){openModal('New maintenance request',`
+    <div class="field"><label class="f">What's the issue?</label><input class="f" id="ntTitle" placeholder="e.g. Kitchen faucet dripping"></div>
+    <div class="field"><label class="f">Category</label><select class="f" id="ntCat">${CATS.map(c=>`<option>${c}</option>`).join('')}</select></div>
+    <div class="field"><label class="f">Details</label><textarea class="f" id="ntDesc" rows="3" placeholder="Describe what's happening…"></textarea></div>
+    <div class="field"><label class="f">Photo <span style="color:#C93B3B">*required</span></label>
+      <label class="uploader req" id="ntDrop" for="ntFile"><i data-lucide="camera"></i><div class="up-t">Add a photo of the issue</div><div class="hint">Required to submit — helps us diagnose faster</div></label>
+      <input type="file" id="ntFile" accept="image/*" multiple class="hide" onchange="ntPreview(event)"><div class="thumbs" id="ntThumbs"></div></div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" id="ntSubmit" onclick="submitTicket()"><i data-lucide="send"></i> Submit</button>`);
+  window._ph=[];syncSubmit();}
+function ntPreview(e){const box=document.getElementById('ntThumbs');
+  [...e.target.files].forEach(f=>{const url=URL.createObjectURL(f);window._ph.push(url);
+    const d=document.createElement('div');d.className='t';d.innerHTML=`<img src="${url}"><div class="x" onclick="this.parentElement.remove();window._ph=window._ph.filter(u=>u!=='${url}');syncSubmit()">×</div>`;box.appendChild(d);});
+  document.getElementById('ntDrop').classList.remove('req');syncSubmit();}
+function syncSubmit(){const ok=(window._ph||[]).length>0;const b=document.getElementById('ntSubmit');if(!b)return;
+  b.style.opacity=ok?'1':'.45';b.style.pointerEvents=ok?'auto':'none';const d=document.getElementById('ntDrop');if(d)d.classList.toggle('req',!ok);}
+function submitTicket(){if(!(window._ph||[]).length){toast('A photo is required');return;}const t=curTenant();
+  DB.tickets.unshift({id:nid('TK-'),tenant:t.id,property:t.property,title:document.getElementById('ntTitle').value||'Untitled request',
+    cat:document.getElementById('ntCat').value,desc:document.getElementById('ntDesc').value||'',stage:'new',created:'2026-07-01',photo:window._ph[0]});
+  closeModal();render();toast('Request submitted');}
+
+/* ══════════ RENTER · DOCUMENTS ══════════ */
+function renterDocs(){const t=curTenant();const docs=DB.documents.filter(d=>d.property===t.property&&d.shared);
+  setHead('Documents','Your lease & community documents');
+  set(`<div class="grid g2" style="align-items:start">
+    <div><div class="sectionhead"><i data-lucide="file-signature" style="color:var(--primary)"></i><h2>Lease</h2></div>${docs.filter(d=>d.type==='Lease').map(d=>docRow(d,false)).join('')||emptyDoc()}</div>
+    <div><div class="sectionhead"><i data-lucide="building" style="color:var(--sage)"></i><h2>HOA — Ledge Rock</h2></div>${docs.filter(d=>d.type==='HOA').map(d=>docRow(d,false)).join('')||emptyDoc()}</div></div>`);
+}
+function docRow(d,manage){return `<div class="docrow cardbody"><div class="fic"><i data-lucide="file-text"></i></div>
+  <div style="min-width:0"><div style="font-weight:600">${manage?ce('documents',d.id,'name',d.name):d.name}</div><div class="hint">${d.type} · ${d.size} · ${dshort(d.date)}</div></div>
+  <span class="spacer"></span>
+  ${manage?`<span class="badge-s ${d.shared?'b-green':'b-gray'}" style="cursor:pointer" onclick="toggleShared('${d.id}')">${d.shared?'Shared':'Private'}</span><button class="trash" onclick="del('documents','${d.id}')"><i data-lucide="trash-2"></i></button>`
+    :`<button class="btn btn-ghost btn-sm" onclick="toast('Opening ${d.name}')"><i data-lucide="eye"></i></button><button class="btn btn-ghost btn-sm" onclick="toast('Downloaded ${d.name}')"><i data-lucide="download"></i></button>`}</div>`;}
+function toggleShared(id){const d=DB.documents.find(x=>x.id===id);d.shared=!d.shared;render();toast(d.shared?'Shared with tenant':'Set to private');}
+const emptyDoc=()=>`<div class="glass card-p hint cardbody" style="text-align:center">No documents yet.</div>`;
+
+/* ══════════ RENTER · PROFILE (editable) ══════════ */
+function renterProfile(){const t=curTenant(),p=propOf(t.property);
+  setHead('Profile','Your details');
+  set(`<div class="grid g2" style="align-items:start">
+    <div class="glass card-p cardbody"><div class="flex ac g12 mb"><div class="avatar" style="width:52px;height:52px;font-size:17px;border-radius:15px;background:${t.color}">${initials(t.name)}</div>
+      <div><div style="font-weight:600;font-size:16px">${ce('tenants',t.id,'name',t.name)}</div><div class="hint">Renter · ${p.name}</div></div></div>
+      <div class="field"><label class="f">Full name</label><div class="glass" style="padding:10px 12px">${ce('tenants',t.id,'name',t.name)}</div></div>
+      <div class="field"><label class="f">Email</label><div class="glass" style="padding:10px 12px">${ce('tenants',t.id,'email',t.email)}</div></div>
+      <div class="field"><label class="f">Phone</label><div class="glass" style="padding:10px 12px">${ce('tenants',t.id,'phone',t.phone)}</div></div>
+    </div>
+    <div class="glass card-p cardbody"><div class="sectionhead"><i data-lucide="shield" style="color:var(--primary)"></i><h2>Sign-in</h2></div>
+      <div class="flex ac g12" style="padding:14px;border-radius:13px;background:var(--glass-soft);border:1px solid var(--hair)">
+        <svg width="22" height="22" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1Z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"/><path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.3 9.14 5.38 12 5.38Z"/></svg>
+        <div><div style="font-weight:600">Signed in with Google</div><div class="hint">${t.email}</div></div><span class="spacer"></span><span class="badge-s b-green"><span class="dotb"></span>Connected</span></div>
+      <div class="hint mt">Autopay, receipts and maintenance updates are sent to this email.</div>
+    </div></div>`);
+}
+
+/* ══════════ ADMIN · DASHBOARD ══════════ */
+function adminDash(){setHead('Management','Portfolio overview');
+  const mrr=DB.properties.reduce((a,p)=>a+p.baseRent+p.utilEst,0);
+  const open=DB.tickets.filter(t=>t.stage!=='completed').length;
+  set(`<div class="grid g4 mb">
+    ${stat('Properties',DB.properties.length+'','All occupied','var(--primary)','building-2')}
+    ${stat('Monthly recurring',fmt0(mrr),'Lease + utilities · <span class="delta up">▲ 2.1%</span>','var(--sage)','banknote')}
+    ${stat('Open requests',open+'','Across portfolio','var(--amber)','wrench')}
+    ${stat('Active tenants',DB.tenants.length+'','','var(--violet)','users')}
+  </div>
+  <div class="grid" style="grid-template-columns:1.35fr 1fr">
+    <div class="glass"><div class="card-h"><h3>Requests needing attention</h3><span class="spacer"></span><button class="btn btn-ghost btn-sm" onclick="go('a_tickets')">Board <i data-lucide="arrow-right"></i></button></div>
+      <div class="cardbody">${DB.tickets.filter(t=>t.stage!=='completed').map(t=>{const p=propOf(t.property);
+        return accRow(STAGES[t.stage].c,`<div><div class="t">${t.title}</div><div class="d">${p.name} · ${t.cat} · ${t.id}</div></div>`,`<div class="amt"><span class="badge-s ${STAGES[t.stage].cls}">${STAGES[t.stage].t}</span></div>`);}).join('')}</div></div>
+    <div class="glass"><div class="card-h"><h3>Upcoming billing</h3></div><div class="cardbody">${DB.schedule.slice().sort((a,b)=>a.date<b.date?-1:1).slice(0,4).map(s=>{const tn=tenantOf(s.tenant);
+      return accRow(s.type==='lease'?'#64748B':'var(--amber)',`<div><div class="t">${s.label}</div><div class="d">${tn.name} · ${dfmt(s.date)}</div></div>`,`<div class="amt"><div class="v">${fmt(s.amount)}</div></div>`);}).join('')}</div></div>
+  </div>`);
+}
+
+/* ══════════ ADMIN · TICKETS ══════════ */
+function adminTickets(){setHead('Maintenance board','Drag requests across stages');
+  const scope=CTX==='all'?DB.tickets:DB.tickets.filter(t=>t.property===CTX);
+  set(`<div class="flex jb ac mb"><div class="hint">Showing ${CTX==='all'?'all properties':propOf(CTX).name} · drag a card to change stage</div></div><div id="kb"></div>`);
+  renderKanban('kb',scope,true);
+}
+function renderKanban(elId,tickets,drag){const cols=Object.keys(STAGES);
+  document.getElementById(elId).innerHTML=`<div class="kanban">${cols.map(stage=>{const items=tickets.filter(t=>t.stage===stage);const s=STAGES[stage];
+    return `<div class="kcol" data-stage="${stage}" ${drag?`ondragover="event.preventDefault();this.classList.add('drop')" ondragleave="this.classList.remove('drop')" ondrop="dropCard(event,'${stage}')"`:''}>
+      <div class="kcol-h"><span class="badge-s ${s.cls}"><span class="dotb"></span>${s.t}</span><span class="cnt">${items.length}</span></div>
+      ${items.map(t=>kcard(t,drag)).join('')||`<div class="hint" style="padding:14px;text-align:center">Nothing here</div>`}</div>`;}).join('')}</div>`;
+  lucide.createIcons();
+}
+function kcard(t,drag){const p=propOf(t.property),tn=tenantOf(t.tenant);
+  return `<div class="kcard" ${drag?`draggable="true" ondragstart="dragCard(event,'${t.id}')" ondragend="this.classList.remove('dragging')"`:''} onclick="ticketDetail('${t.id}')">
+    <img class="thumb" src="${t.photo}" alt="">
+    <div class="flex ac jb" style="margin-bottom:4px"><span class="badge-s b-gray">${t.cat}</span><span class="hint">${t.id}</span></div>
+    <h4>${t.title}</h4><p>${t.desc}</p>
+    <div class="row"><i data-lucide="user" style="width:13px;height:13px"></i>${tn.name.split(' ')[0]} · ${p.name}<span class="spacer"></span>${dshort(t.created)}</div></div>`;}
+let _drag=null;
+function dragCard(e,id){_drag=id;e.target.classList.add('dragging');}
+function dropCard(e,stage){e.preventDefault();document.querySelectorAll('.kcol').forEach(c=>c.classList.remove('drop'));
+  const t=DB.tickets.find(x=>x.id===_drag);if(t){t.stage=stage;toast(t.id+' → '+STAGES[stage].t);}render();}
+function ticketDetail(id){const t=DB.tickets.find(x=>x.id===id),p=propOf(t.property),tn=tenantOf(t.tenant);
+  const order=['new','received','completed'],si=order.indexOf(t.stage);const admin=ROLE==='admin';
+  openModal(admin?'Edit request':t.title,`
+    <div class="flex ac g8 mb wrap"><span class="badge-s b-gray">${admin?isel('tickets',t.id,'cat',t.cat,CATS):t.cat}</span>
+      <span class="badge-s ${STAGES[t.stage].cls}">${STAGES[t.stage].t}</span>${admin?isel('tickets',t.id,'stage',t.stage,Object.keys(STAGES).map(k=>k)):''}<span class="hint" style="margin-left:auto">${t.id}</span></div>
+    <img src="${t.photo}" style="width:100%;height:200px;object-fit:cover;border-radius:13px;margin-bottom:16px">
+    <div class="field"><label class="f">Title</label><div class="glass" style="padding:10px 12px">${admin?ce('tickets',t.id,'title',t.title):t.title}</div></div>
+    <div class="field"><label class="f">Details</label><div class="glass" style="padding:10px 12px;min-height:52px">${admin?ce('tickets',t.id,'desc',t.desc):t.desc||'—'}</div></div>
+    <div class="grid g2 mb"><div class="tile"><div class="k">Tenant</div><div class="v" style="font-size:14px">${tn.name}</div></div><div class="tile"><div class="k">Property</div><div class="v" style="font-size:14px">${p.name}</div></div></div>
+    <div class="field"><label class="f">Stage timeline</label><div class="timeline">
+      ${order.map((s,i)=>`<div class="tl"><div class="dot" style="color:${i<=si?STAGES[s].c:'var(--muted-2)'}"><i data-lucide="${i<si?'check':STAGES[s].ic}"></i></div><div class="c"><div class="t">${STAGES[s].t}</div><div class="d">${i<=si?'Done':'Pending'}</div></div></div>`).join('')}</div></div>`,
+    admin?`<button class="btn btn-danger" onclick="del('tickets','${t.id}');closeModal()"><i data-lucide="trash-2"></i></button><span class="spacer"></span><button class="btn btn-ghost" onclick="closeModal()">Close</button>
+      ${t.stage!=='completed'?`<button class="btn btn-primary" onclick="advance('${t.id}')"><i data-lucide="arrow-right"></i> Move to ${STAGES[order[si+1]].t}</button>`:'<span class="badge-s b-green">Completed</span>'}`
+      :`<button class="btn btn-ghost" onclick="closeModal()">Close</button>`);}
+function advance(id){const order=['new','received','completed'];const t=DB.tickets.find(x=>x.id===id);t.stage=order[order.indexOf(t.stage)+1];closeModal();render();toast(id+' → '+STAGES[t.stage].t);}
+
+/* ══════════ ADMIN · BILLING ══════════ */
+function adminBilling(){setHead('Billing','Controls, schedules & Stripe status');
+  const tab=TAB.a_billing||'overview';
+  set(`<div class="tabs">${ab('overview','Overview')}${ab('schedule','Schedules')}${ab('invoices','Invoices')}</div><div id="abb"></div>`);
+  abBody(tab);
+}
+const ab=(id,l)=>`<button class="${(TAB.a_billing||'overview')===id?'on':''}" onclick="TAB.a_billing='${id}';render()">${l}</button>`;
+function abBody(tab){const el=document.getElementById('abb');
+  if(tab==='overview'){el.innerHTML=`<div class="grid g3 mb">
+      ${stat('Collected · June',fmt(3122),'2 of 2 tenants','var(--sage)','banknote')}
+      ${stat('Scheduled · July',fmt(3135),'Auto-charge','var(--primary)','clock')}
+      ${stat('Past due',fmt(0),'None','var(--amber)','alert-circle')}</div>
+    <div class="glass"><div class="card-h"><h3>Per-tenant billing</h3><span class="sub">Click any value to edit</span></div>
+      <div class="cardbody"><table class="tbl"><thead><tr><th>Tenant</th><th>Property</th><th>Base rent</th><th>Lease day</th><th>Utility day</th><th>Utilities est.</th><th>Method</th></tr></thead>
+      <tbody>${DB.tenants.map(tn=>{const p=propOf(tn.property);const m=DB.pmethods.find(x=>x.tenant===tn.id&&x.def);return `<tr>
+        <td style="font-weight:600">${tn.name}</td><td>${p.name}</td><td class="tnum">${money('properties',p.id,'baseRent',p.baseRent)}</td>
+        <td>${ce('properties',p.id,'leaseDay',p.leaseDay,'num')} <span class="hint">of mo.</span></td>
+        <td>${ce('properties',p.id,'utilDay',p.utilDay,'num')} <span class="hint">of mo.</span></td>
+        <td class="tnum">${money('properties',p.id,'utilEst',p.utilEst)}</td>
+        <td class="hint">${m?(m.type==='card'?m.brand+' ·· '+m.last4:'ACH ·· '+m.last4):'—'}</td></tr>`;}).join('')}</tbody></table></div></div>`;}
+  if(tab==='schedule'){el.innerHTML=`<div class="flex jb ac mb"><div class="hint">Recurring charges Stripe runs automatically.</div>
+      <button class="btn btn-primary btn-sm" onclick="chargeModal()"><i data-lucide="plus"></i> Add charge</button></div>
+      <div class="glass"><div class="cardbody">${DB.schedule.slice().sort((a,b)=>a.date<b.date?-1:1).map(s=>{const tn=tenantOf(s.tenant);const color=s.type==='lease'?'#64748B':'var(--amber)';
+        return accRow(color,`<div><div class="t">${ce('schedule',s.id,'label',s.label)} <span class="hint">· ${tn.name}</span></div><div class="d">${s.recur}</div></div>`,
+          `<div class="amt"><div><div class="v">${money('schedule',s.id,'amount',s.amount)}</div><div class="d" style="text-align:right">${dfmt(s.date)}</div></div><button class="editbtn" onclick="chargeModal('${s.id}')" title="Edit charge"><i data-lucide="pencil"></i></button><button class="trash" onclick="del('schedule','${s.id}')"><i data-lucide="trash-2"></i></button></div>`);}).join('')}</div></div>`;}
+  if(tab==='invoices'){el.innerHTML=`<div class="glass"><div class="card-h"><h3>All invoices</h3></div>
+      <div class="cardbody"><table class="tbl"><thead><tr><th>Invoice</th><th>Tenant</th><th>Description</th><th>Date</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+      <tbody>${DB.invoices.map(i=>{const tn=tenantOf(i.tenant);return `<tr><td class="tnum" style="color:var(--muted)">${i.id}</td><td style="font-weight:600">${tn.name}</td><td>${ce('invoices',i.id,'label',i.label)}</td>
+        <td>${dfmt(i.date)}</td><td class="tnum">${money('invoices',i.id,'amount',i.amount)}</td>
+        <td><span class="badge-s b-green"><span class="dotb"></span>${i.status}</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="toast('Receipt ${i.id}')"><i data-lucide="download"></i></button></td></tr>`;}).join('')}</tbody></table></div></div>`;}
+  lucide.createIcons();
+}
+
+/* ══════════ ADMIN · PROPERTIES ══════════ */
+function adminProps(){setHead('Properties','Setup, pricing, cycles & documents');
+  set(`<div class="flex jb ac mb"><div class="hint">${DB.properties.length} properties · click any field to edit</div>
+    <button class="btn btn-primary" onclick="addProperty()"><i data-lucide="plus"></i> Add property</button></div>
+    <div class="grid g2">${DB.properties.map(p=>{const tn=tenantOf(p.tenant);const dc=DB.documents.filter(d=>d.property===p.id).length;return `
+    <div class="glass card-p cardbody">
+      <div class="flex ac g12 mb"><div class="avatar" style="width:46px;height:46px;border-radius:14px;background:linear-gradient(150deg,#3B78FF,#0B3FB0)"><i data-lucide="home" style="width:21px;height:21px"></i></div>
+        <div style="min-width:0"><div style="font-weight:600;font-size:15px">${ce('properties',p.id,'name',p.name)}</div><div class="hint">${ce('properties',p.id,'addr',p.addr)}</div></div>
+        <span class="spacer"></span><button class="trash" onclick="del('properties','${p.id}')"><i data-lucide="trash-2"></i></button></div>
+      <div class="grid g3" style="gap:10px;margin-bottom:14px">
+        <div class="tile"><div class="k">Rent</div><div class="v">${money('properties',p.id,'baseRent',p.baseRent)}</div></div>
+        <div class="tile"><div class="k">Cycles</div><div class="v" style="font-size:13px">${ce('properties',p.id,'leaseDay',p.leaseDay,'num')} · ${ce('properties',p.id,'utilDay',p.utilDay,'num')}</div></div>
+        <div class="tile"><div class="k">Docs</div><div class="v">${dc}</div></div></div>
+      <div class="hint mb"><i data-lucide="user" style="width:13px;height:13px;vertical-align:-2px"></i> ${tn?tn.name:'Vacant'} · ${ce('properties',p.id,'floorplan',p.floorplan)}</div>
+      <div class="flex g8"><button class="btn btn-ghost btn-sm" onclick="propDocs('${p.id}')"><i data-lucide="folder"></i> Documents (${dc})</button></div>
+    </div>`;}).join('')}</div>`);
+}
+function addProperty(){DB.properties.push({id:nid('p'),name:'New Property',addr:'Address, City, ST ZIP',floorplan:'Beds / baths',baseRent:2000,leaseDay:1,utilDay:25,utilEst:150,tenant:null,status:'Vacant'});render();toast('Property added — edit inline');}
+function propDocs(id){const p=propOf(id);const docs=DB.documents.filter(d=>d.property===id);
+  openModal('Documents — '+p.name,`
+    <label class="uploader" style="margin-bottom:16px" onclick="addDoc('${id}')"><i data-lucide="upload-cloud"></i><div class="up-t">Upload document</div><div class="hint">Lease, HOA docs, notices — toggle to share with the tenant</div></label>
+    <div id="docList">${docs.map(d=>docRow(d,true)).join('')||'<div class="hint">No documents yet.</div>'}</div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Close</button>`);}
+function addDoc(pid){DB.documents.push({id:nid('d'),property:pid,name:'New Document.pdf',type:'Lease',size:'0 KB',date:'2026-07-01',shared:false});render();propDocs(pid);toast('Document added — rename inline');}
+
+/* ══════════ ADMIN · USERS ══════════ */
+function adminUsers(){setHead('Users','Tenants, roles & property assignment');
+  set(`<div class="flex jb ac mb"><div class="hint">${DB.tenants.length} tenants · 1 admin · click role/property to reassign</div>
+    <button class="btn btn-primary" onclick="inviteUser()"><i data-lucide="user-plus"></i> Invite user</button></div>
+    <div class="glass"><div class="cardbody"><table class="tbl"><thead><tr><th>User</th><th>Role</th><th>Property</th><th>Contact</th><th>Move-in</th><th></th></tr></thead>
+    <tbody>
+      <tr><td><div class="flex ac g8"><div class="avatar" style="width:31px;height:31px;font-size:11px;border-radius:10px;background:${DB.admin.color}">DC</div><div><div style="font-weight:600">${DB.admin.name}</div><div class="hint">${DB.admin.email}</div></div></div></td>
+        <td><span class="badge-s b-blue">Admin</span></td><td class="hint">All properties</td><td class="hint">—</td><td class="hint">—</td><td></td></tr>
+      ${DB.tenants.map(tn=>`<tr>
+        <td><div class="flex ac g8"><div class="avatar" style="width:31px;height:31px;font-size:11px;border-radius:10px;background:${tn.color}">${initials(tn.name)}</div>
+          <div><div style="font-weight:600">${ce('tenants',tn.id,'name',tn.name)}</div><div class="hint">${ce('tenants',tn.id,'email',tn.email)}</div></div></div></td>
+        <td>${isel('tenants',tn.id,'role',tn.role,['Renter','Admin'])}</td>
+        <td>${isel('tenants',tn.id,'property',tn.property,DB.properties.map(p=>p.id))} </td>
+        <td class="hint">${ce('tenants',tn.id,'phone',tn.phone)}</td><td>${dshort(tn.moveIn)}</td>
+        <td><button class="trash" onclick="del('tenants','${tn.id}')"><i data-lucide="trash-2"></i></button></td></tr>`).join('')}
+    </tbody></table></div></div>
+    <div class="hint mt">Property column stores the id (p1/p2); the real build shows the friendly name.</div>`);
+}
+function inviteUser(){openModal('Invite user',`
+  <div class="field"><label class="f">Email</label><input class="f" placeholder="name@email.com"></div>
+  <div class="grid g2"><div class="field"><label class="f">Role</label><select class="f"><option>Renter</option><option>Admin</option></select></div>
+    <div class="field"><label class="f">Assign to property</label><select class="f">${DB.properties.map(p=>`<option>${p.name}</option>`).join('')}</select></div></div>
+  <div class="editable-hint"><i data-lucide="mail"></i> They'll get an email to sign in with Google.</div>`,
+  `<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="doInvite()">Send invite</button>`);}
+function doInvite(){DB.tenants.push({id:nid('t'),name:'Invited User',email:'invited@email.com',phone:'(970) 555-0000',property:DB.properties[0].id,moveIn:'2026-07-01',role:'Renter',color:'linear-gradient(150deg,#8A63FF,#5B2BD0)'});closeModal();render();toast('Invitation sent');}
+
+/* ══════════ modal / toast ══════════ */
+function openModal(title,body,footer){document.getElementById('modal').innerHTML=`<div class="modal-h"><h3>${title}</h3><button class="x" onclick="closeModal()"><i data-lucide="x"></i></button></div><div class="modal-b">${body}</div>${footer?`<div class="modal-f">${footer}</div>`:''}`;
+  document.getElementById('overlay').classList.add('show');lucide.createIcons();}
+function closeModal(){document.getElementById('overlay').classList.remove('show');}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target.id==='overlay')closeModal();});
+let _tt;function toast(m){document.getElementById('toastMsg').textContent=m;const t=document.getElementById('toast');t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2400);}
+
+/* ══════════ persistence (localStorage — stands in for the DB) ══════════ */
+const LS_KEY='rentals_proto_v1';
+function persist(){try{localStorage.setItem(LS_KEY,JSON.stringify({
+  properties:DB.properties,tenants:DB.tenants,admin:DB.admin,pmethods:DB.pmethods,
+  schedule:DB.schedule,invoices:DB.invoices,tickets:DB.tickets,documents:DB.documents,_seq}));}catch(e){}}
+function loadState(){try{const raw=localStorage.getItem(LS_KEY);if(!raw)return;const d=JSON.parse(raw);
+  ['properties','tenants','pmethods','schedule','invoices','tickets','documents'].forEach(k=>{if(Array.isArray(d[k]))DB[k]=d[k];});
+  if(d.admin)DB.admin=d.admin;if(typeof d._seq==='number')_seq=d._seq;}catch(e){}}
+function resetDemo(){try{localStorage.removeItem(LS_KEY);}catch(e){}location.reload();}
+
+loadState();buildCtxSelect();render();
+</script>
+</body>
+</html>
