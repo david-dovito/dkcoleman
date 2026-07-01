@@ -508,9 +508,8 @@ const defTab=v=>({billing:'schedule',a_billing:'overview'})[v];
 function billBody(tab){
   const t=curTenant(),el=document.getElementById('bb');
   if(tab==='schedule'){const sched=DB.schedule.filter(s=>s.tenant===t.id).sort((a,b)=>a.date<b.date?-1:1);
-    el.innerHTML=`<div class="glass mb"><div class="card-h"><h3>Scheduled charges</h3><span class="sub">Auto-charged to default method</span><span class="spacer"></span>
-        <button class="btn btn-ghost btn-sm" onclick="chargeModal()"><i data-lucide="plus"></i> Add</button></div>
-      <div class="cardbody">${sched.map(s=>schedRow(s,true)).join('')||'<div class="hint" style="padding:18px">No scheduled charges.</div>'}</div></div>
+    el.innerHTML=`<div class="glass mb"><div class="card-h"><h3>Scheduled charges</h3><span class="sub">Set by your property manager · auto-charged to your default method</span></div>
+      <div class="cardbody">${sched.map(s=>schedRow(s)).join('')||'<div class="hint" style="padding:18px">No scheduled charges.</div>'}</div></div>
       <div class="glass card-p cardbody flex ac g12" style="background:var(--glass-soft)">
         <i data-lucide="shield-check" style="color:var(--primary);width:22px;height:22px"></i>
         <div><div style="font-weight:600">Autopay is on</div><div class="hint">Base lease bills on the 15th, utilities on the 25th. Receipt emailed after each charge.</div></div>
@@ -629,7 +628,7 @@ function renterProfile(){const t=curTenant(),p=propOf(t.property);
     <div class="glass card-p cardbody"><div class="flex ac g12 mb"><div class="avatar" style="width:52px;height:52px;font-size:17px;border-radius:15px;background:${t.color}">${initials(t.name)}</div>
       <div><div style="font-weight:600;font-size:16px">${ce('tenants',t.id,'name',t.name)}</div><div class="hint">Renter · ${p.name}</div></div></div>
       <div class="field"><label class="f">Full name</label><div class="glass" style="padding:10px 12px">${ce('tenants',t.id,'name',t.name)}</div></div>
-      <div class="field"><label class="f">Email</label><div class="glass" style="padding:10px 12px">${ce('tenants',t.id,'email',t.email)}</div></div>
+      <div class="field"><label class="f">Email <span class="hint">· from Google sign-in, can't be changed</span></label><div class="glass" style="padding:10px 12px;color:var(--muted)">${t.email}</div></div>
       <div class="field"><label class="f">Phone</label><div class="glass" style="padding:10px 12px">${ce('tenants',t.id,'phone',t.phone)}</div></div>
     </div>
     <div class="glass card-p cardbody"><div class="sectionhead"><i data-lucide="shield" style="color:var(--primary)"></i><h2>Sign-in</h2></div>

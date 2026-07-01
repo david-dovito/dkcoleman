@@ -43,4 +43,9 @@ The prototype's in-memory `DB` object mirrors the intended schema. Each collecti
 4. **Storage:** Supabase Storage buckets for ticket photos and lease/HOA documents.
 5. **Server runtime:** this is currently a static-export Next site (`output: 'export'`) with no server. The production portal needs a server runtime (Next server / route handlers or a small API) for OAuth sessions, Stripe webhooks, and DB writes — likely a separate deployment on `rentals.dkcoleman.com`.
 
-Open items flagged during review: photo-required-to-submit (hard vs soft), and locking the renter side to read-only for billing schedules (admin-only create/edit) in production.
+## Role model
+
+- **Renter** — view dashboard; **view** upcoming charges (read-only); manage **their own** payment methods; download receipts; create maintenance requests and track status (no stage changes); download shared documents; edit their own profile (name/phone; email is read-only, from Google). Renters cannot create/edit/delete billing charges, move ticket stages, or upload/share/delete documents.
+- **Admin / management** — full CRUD across billing, tickets, properties, documents, and users.
+
+Open item still to decide: photo-required-to-submit (hard vs soft).
