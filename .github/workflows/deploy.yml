@@ -41,6 +41,7 @@ jobs:
 
       - name: Build with Next.js
         env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
           NOTION_RESOURCES_DATABASE_ID: ${{ secrets.NOTION_RESOURCES_DATABASE_ID }}
