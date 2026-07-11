@@ -165,6 +165,10 @@ export default async function RootLayout({
                       Projects <Kbd>P</Kbd>
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
+                    <Link href="/real-estate" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
+                      Real Estate
+                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
+                    </Link>
                     <Link href="/about" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       About <Kbd>A</Kbd>
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
@@ -193,6 +197,7 @@ export default async function RootLayout({
                       <ul className="space-y-2 text-sm text-muted-foreground">
                         <li><Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                         <li><Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link></li>
+                        <li><Link href="/real-estate" className="hover:text-foreground transition-colors">Real Estate</Link></li>
                         <li><Link href="/resources" className="hover:text-foreground transition-colors">Resources</Link></li>
                         <li><Link href="/resume" className="hover:text-foreground transition-colors">Resume</Link></li>
                         <li><Link href="/about" className="hover:text-foreground transition-colors">About</Link></li>

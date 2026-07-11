@@ -1,13 +1,12 @@
 import type { NextConfig } from 'next';
 
+// Dynamic Next app (server runtime) deployed on Vercel. Public content is read
+// from Neon; the /admin CMS + /api/admin routes write to it. (Previously a
+// static export on GitHub Pages via `output: 'export'`.)
 const nextConfig: NextConfig = {
-  output: 'export',
   images: {
     unoptimized: true,
   },
-  // basePath removed for custom domain (dkcoleman.com)
-  // Previously: '/dkcoleman' for GitHub Pages subpath
-  trailingSlash: true,
 };
 
 export default nextConfig;
