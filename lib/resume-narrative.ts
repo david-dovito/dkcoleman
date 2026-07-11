@@ -1,12 +1,4 @@
-import { Client } from '@notionhq/client';
-import { NotionToMarkdown } from 'notion-to-md';
-
-const getNotionClient = () => {
-    if (!process.env.NOTION_TOKEN || process.env.NOTION_TOKEN === 'ntn_your_integration_token_here') {
-        throw new Error('NOTION_TOKEN is not defined or is a placeholder');
-    }
-    return new Client({ auth: process.env.NOTION_TOKEN });
-};
+import { getSql } from './db';
 
 export interface NarrativeSection {
     id: string;
@@ -19,69 +11,26 @@ export interface NarrativeSection {
 }
 
 export async function getNarrativeSections(): Promise<NarrativeSection[]> {
-    const databaseId = process.env.NOTION_RESUME_NARRATIVE_DATABASE_ID;
-    const token = process.env.NOTION_TOKEN;
-
-    if (!databaseId || !token || token === 'ntn_your_integration_token_here') {
-        console.warn('NOTION_RESUME_NARRATIVE_DATABASE_ID not set or credentials missing');
-        return [];
-    }
-
+    const sql = getSql();
+    if (!sql) return [];
     try {
-        const notion = getNotionClient();
-        const n2m = new NotionToMarkdown({ notionClient: notion });
-
-        const response = await notion.databases.query({
-            database_id: databaseId,
-            filter: {
-                property: 'Published',
-                checkbox: { equals: true },
-            },
-            sorts: [
-                { property: 'Order', direction: 'ascending' },
-            ],
-        });
-
-        const sections: NarrativeSection[] = [];
-
-        for (const page of response.results) {
-            const props = (page as any).properties;
-            const pageIcon = (page as any).icon;
-
-            const title = props.Name?.title?.[0]?.plain_text || 'Untitled';
-            const period = props.Period?.rich_text?.[0]?.plain_text || '';
-            const order = props.Order?.number ?? 99;
-
-            let icon = '📌';
-            let iconType: 'emoji' | 'image' = 'emoji';
-            if (pageIcon?.type === 'emoji') {
-                icon = pageIcon.emoji;
-            } else if (pageIcon?.type === 'external') {
-                icon = pageIcon.external.url;
-                iconType = 'image';
-            } else if (pageIcon?.type === 'file') {
-                icon = pageIcon.file.url;
-                iconType = 'image';
-            }
-
-            // Convert page blocks to markdown
-            const mdBlocks = await n2m.pageToMarkdown(page.id);
-            const mdString = n2m.toMarkdownString(mdBlocks);
-
-            sections.push({
-                id: page.id,
-                title,
-                period,
-                order,
-                icon,
-                iconType,
-                content: mdString.parent,
-            });
-        }
-
-        return sections;
+        const rows = (await sql`
+            select id, title, period, "order", icon, icon_type, content
+            from public.resume_narrative
+            where published = true
+            order by "order" asc nulls last, id asc
+        `) as Record<string, unknown>[];
+        return rows.map((r) => ({
+            id: String(r.id),
+            title: (r.title as string) || 'Untitled',
+            period: (r.period as string) || '',
+            order: (r.order as number) ?? 99,
+            icon: (r.icon as string) || '📌',
+            iconType: (r.icon_type as 'emoji' | 'image') || 'emoji',
+            content: (r.content as string) || '',
+        }));
     } catch (error) {
-        console.error('Error fetching narrative sections:', error);
+        console.error('Error fetching narrative sections from Neon:', error);
         return [];
     }
 }
