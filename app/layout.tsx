@@ -5,11 +5,12 @@ import { PWAInstall } from '@/components/pwa-install';
 import Link from 'next/link';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { MobileNav } from '@/components/mobile-nav';
-import { HamburgerButton } from '@/components/hamburger-button';
+import { MobileBottomNav } from '@/components/mobile-bottom-nav';
 import CustomCursor from '@/components/ui/CustomCursor';
 import { Nav1159Button } from '@/components/nav-1159';
 import { ThemeWrapper } from '@/components/theme-wrapper';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { FooterSubscribe } from '@/components/footer-subscribe';
 
 import { KeyBindings } from '@/components/key-bindings';
 import { Search, SearchItem } from '@/components/search';
@@ -140,10 +141,12 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <ThemeWrapper>
-            <div className="min-h-screen flex flex-col">
+            <div className="min-h-screen flex flex-col pb-24 md:pb-0">
               <KeyBindings />
-              {/* Mobile Navigation - Rendered at root for proper overlay */}
+              {/* Mobile Navigation - full-screen sheet (opened from the bottom bar) */}
               <MobileNav />
+              {/* Mobile bottom nav - primary destinations, thumb-reachable */}
+              <MobileBottomNav />
 
               <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-md">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center max-w-5xl">
@@ -152,7 +155,7 @@ export default async function RootLayout({
                     <img src="/logo.svg" alt="David Coleman" className="h-6 dark:invert" />
                   </Link>
 
-                  {/* Desktop Navigation - Hidden on mobile */}
+                  {/* Desktop Navigation - Slimmed; secondary links live in the footer */}
                   <nav className="hidden md:flex gap-6 items-center">
                     <Link href="/blog" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       Blog <Kbd>B</Kbd>
@@ -162,49 +165,57 @@ export default async function RootLayout({
                       Projects <Kbd>P</Kbd>
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
-                    <Link href="/resources" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Resources <Kbd>R</Kbd>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </Link>
-                    <Link href="/resume" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Resume <Kbd>M</Kbd>
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </Link>
                     <Link href="/about" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
                       About <Kbd>A</Kbd>
                       <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
                     </Link>
-                    <a href="https://wedding.dkcoleman.com" target="_blank" rel="noopener noreferrer" className="text-sm hover:text-muted-foreground transition-colors group flex items-center relative">
-                      Wedding
-                      <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-fern-500 group-hover:w-full transition-all duration-300" />
-                    </a>
                     <div className="h-4 w-[1px] bg-border mx-2" />
                     <Nav1159Button kbdClass="ml-2 hidden lg:inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold border rounded bg-muted/50 text-muted-foreground transition-all group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary" />
                     <Search items={searchItems} />
                     <ThemeToggle />
                   </nav>
-
-                  {/* Mobile Hamburger Button */}
-                  <HamburgerButton />
                 </div>
               </header>
               <main className="flex-1">
                 {children}
               </main>
               <footer className="border-t relative z-10">
-
-                <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground max-w-4xl space-y-2">
-                  <div>
-                    © 1999-{new Date().getFullYear()} David Coleman. All rights reserved.
+                <div className="container mx-auto px-4 py-12 max-w-5xl">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                    <div className="col-span-2 md:col-span-1">
+                      <img src="/logo.svg" alt="David Coleman" className="h-6 dark:invert mb-3" />
+                      <p className="text-sm text-muted-foreground max-w-xs">
+                        Thoughts on faith, business, and figuring it out along the way.
+                      </p>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium mb-3">Explore</div>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li><Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+                        <li><Link href="/projects" className="hover:text-foreground transition-colors">Projects</Link></li>
+                        <li><Link href="/resources" className="hover:text-foreground transition-colors">Resources</Link></li>
+                        <li><Link href="/resume" className="hover:text-foreground transition-colors">Resume</Link></li>
+                        <li><Link href="/about" className="hover:text-foreground transition-colors">About</Link></li>
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium mb-3">The 1159</div>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li><FooterSubscribe /></li>
+                        <li><Link href="/blog" className="hover:text-foreground transition-colors">Read the archive</Link></li>
+                      </ul>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium mb-3">Connect</div>
+                      <ul className="space-y-2 text-sm text-muted-foreground">
+                        <li><a href="https://wedding.dkcoleman.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">Wedding</a></li>
+                        <li><Link href="/brand-kit" className="hover:text-foreground transition-colors">Brand Kit</Link></li>
+                      </ul>
+                    </div>
                   </div>
-                  <div>
-                    <Link href="/brand-kit" className="hover:text-fern-600 transition-colors hover:underline underline-offset-4 decoration-fern-500">
-                      Brand Kit
-                    </Link>
-                    <span className="mx-2">•</span>
-                    <Link href="/admin" className="hover:text-primary transition-colors hover:underline underline-offset-4 opacity-50 text-xs">
-                      Admin
-                    </Link>
+                  <div className="mt-10 pt-6 border-t flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-muted-foreground">
+                    <div>© 1999-{new Date().getFullYear()} David Coleman. All rights reserved.</div>
+                    <Link href="/admin" className="opacity-50 hover:opacity-100 transition-opacity">Admin</Link>
                   </div>
                 </div>
               </footer>
