@@ -1,12 +1,4 @@
-import { Client } from '@notionhq/client';
-import { NotionToMarkdown } from 'notion-to-md';
-
-const getNotionClient = () => {
-    if (!process.env.NOTION_TOKEN || process.env.NOTION_TOKEN.includes('your_integration_token')) {
-        throw new Error('NOTION_TOKEN is not defined or is a placeholder');
-    }
-    return new Client({ auth: process.env.NOTION_TOKEN });
-};
+import { getSql } from './db';
 
 export interface Resume {
     title: string;
@@ -14,39 +6,26 @@ export interface Resume {
     lastUpdated: string;
 }
 
+const DEFAULT: Resume = {
+    title: 'Resume',
+    content: '',
+    lastUpdated: new Date().toISOString(),
+};
+
 export async function getResume(): Promise<Resume | null> {
-    const pageId = process.env.NOTION_RESUME_PAGE_ID;
-    const token = process.env.NOTION_TOKEN;
-
-    // Check for valid credentials before attempting to connect
-    if (!pageId || pageId.includes('your_resume_page_id') || !token || token === 'ntn_your_integration_token_here') {
-        console.warn('NOTION_RESUME_PAGE_ID not set or is a placeholder');
-        return {
-            title: 'Resume',
-            content: '# Resume\n\nResume content will appear here once configured.',
-            lastUpdated: new Date().toISOString()
-        };
-    }
-
+    const sql = getSql();
+    if (!sql) return DEFAULT;
     try {
-        const notion = getNotionClient();
-        const n2m = new NotionToMarkdown({ notionClient: notion });
-
-        const page = await notion.pages.retrieve({ page_id: pageId }) as any;
-        const mdblocks = await n2m.pageToMarkdown(pageId);
-        const mdString = n2m.toMarkdownString(mdblocks);
-
+        const rows = (await sql`select title, content, last_updated from public.resume order by id asc limit 1`) as Record<string, unknown>[];
+        if (!rows.length) return DEFAULT;
+        const r = rows[0];
         return {
-            title: page.properties?.title?.title?.[0]?.plain_text || 'Resume',
-            content: mdString.parent,
-            lastUpdated: page.last_edited_time
+            title: (r.title as string) || 'Resume',
+            content: (r.content as string) || '',
+            lastUpdated: r.last_updated ? new Date(r.last_updated as string).toISOString() : new Date().toISOString(),
         };
     } catch (error) {
-        // Resume page not accessible - this is expected if using a static resume component
-        return {
-            title: 'Resume',
-            content: '',
-            lastUpdated: new Date().toISOString()
-        };
+        console.error('Error fetching resume from Neon:', error);
+        return DEFAULT;
     }
 }
