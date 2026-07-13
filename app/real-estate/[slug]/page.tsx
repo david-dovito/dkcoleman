@@ -1,8 +1,26 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getListingBySlug, priceLabel } from '@/lib/listings';
 
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+    const { slug } = await params;
+    const l = await getListingBySlug(slug);
+    if (!l) return { title: 'Listing not found' };
+    const where = [l.city, l.state].filter(Boolean).join(', ');
+    const title = `${l.title}${where ? ` - ${where}` : ''}`;
+    const description = `${priceLabel(l)}${l.beds != null ? ` - ${l.beds} bd` : ''}${l.baths != null ? ` / ${l.baths} ba` : ''}${l.sqft != null ? ` / ${l.sqft.toLocaleString()} sqft` : ''}. ${(l.description || '').slice(0, 140)}`.trim();
+    const url = `https://dkcoleman.com/real-estate/${slug}`;
+    return {
+        title,
+        description,
+        alternates: { canonical: url },
+        openGraph: { title, description, url, type: 'website', images: l.photos?.length ? [l.photos[0]] : undefined },
+        twitter: { card: 'summary_large_image', title, description },
+    };
+}
 
 export default async function ListingDetail({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params;

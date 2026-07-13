@@ -71,15 +71,17 @@ export async function getPublishedPosts(): Promise<NotionPost[]> {
     }
     try {
         const rows = (await sql`
-            select id, slug, title, date, excerpt, author, tags, published, featured, word_count, reading_time
+            select id, slug, title, date::text as date, excerpt, author, tags, published, featured, word_count, reading_time
             from public.blog_posts
-            where published = true
+            where published = true and deleted_at is null
             order by featured desc, date desc
         `) as Record<string, unknown>[];
         return rows.map(mapRow);
     } catch (error) {
+        // Fail loud: a real query failure must not be masked with a fake post
+        // that would shadow every real slug. (getSql() null above = unconfigured.)
         console.error('Error fetching posts from Neon:', error);
-        return [{ ...SAMPLE, content: undefined }];
+        throw error;
     }
 }
 
@@ -88,12 +90,13 @@ export async function getPostBySlug(slug: string): Promise<NotionPost | null> {
     if (!sql) return slug === SAMPLE.slug ? SAMPLE : null;
     try {
         const rows = (await sql`
-            select * from public.blog_posts where slug = ${slug} and published = true limit 1
+            select * from public.blog_posts
+            where slug = ${slug} and published = true and deleted_at is null limit 1
         `) as Record<string, unknown>[];
         return rows.length ? mapRow(rows[0]) : null;
     } catch (error) {
         console.error(`Error fetching post with slug ${slug}:`, error);
-        return null;
+        throw error;
     }
 }
 
@@ -102,12 +105,13 @@ export async function getPublishedPostsWithContent(): Promise<NotionPost[]> {
     if (!sql) return [SAMPLE];
     try {
         const rows = (await sql`
-            select * from public.blog_posts where published = true order by featured desc, date desc
+            select * from public.blog_posts
+            where published = true and deleted_at is null order by featured desc, date desc
         `) as Record<string, unknown>[];
         return rows.map(mapRow);
     } catch (error) {
         console.error('Error fetching posts with content from Neon:', error);
-        return [SAMPLE];
+        throw error;
     }
 }
 
@@ -119,7 +123,7 @@ export async function getBlogStats(): Promise<BlogStats> {
             select count(*)::int as posts,
                    coalesce(sum(word_count), 0)::int as words,
                    coalesce(round(avg(reading_time)), 0)::int as avg_read
-            from public.blog_posts where published = true
+            from public.blog_posts where published = true and deleted_at is null
         `) as Record<string, number>[];
         const r = rows[0];
         return { totalPosts: r.posts, totalWords: r.words, avgReadingTime: r.avg_read };

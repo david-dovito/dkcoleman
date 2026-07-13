@@ -1,126 +1,91 @@
-# Admin Authentication Setup Guide
+# Admin CMS Setup and Usage
 
-This guide will walk you through setting up the secure admin dashboard for your blog.
+The site has a password-gated CMS at `/admin`. It edits content stored in Neon Postgres. There is no Telegram, Cloudflare Worker, or GitHub Pages involved; that older setup has been removed.
 
-## Prerequisites
+For the full picture of how the app is wired, see `docs/ARCHITECTURE.md`.
 
-- A Telegram account
-- A Cloudflare account (free tier is fine)
-- Node.js and npm installed (which you already have)
+## How it works
 
-## Step 1: Create a Telegram Bot
+- `/admin` is protected by `middleware.ts`. Any request under `/admin` or `/api/admin` (except the login/logout endpoints) needs a valid session cookie.
+- Signing in posts your password to `/api/admin/login`, which compares it to `ADMIN_PASSWORD` and, on success, sets an HMAC-signed `dk_admin` cookie (14-day expiry). The cookie is signed with `ADMIN_SECRET`.
+- The CMS is a single-admin tool. Everyone who has the password shares the same admin identity.
+- All content is read from and written to Neon. Edits are live on dynamic pages immediately and on cached pages (for example `/blog`) within their revalidation window or on the next deploy.
 
-1. Open Telegram and search for **@BotFather**.
-2. Send the command `/newbot`.
-3. Follow the prompts to name your bot (e.g., "DKColeman Admin Bot") and give it a username (e.g., `dkcoleman_admin_bot`).
-4. **Important**: Save the **HTTP API Token** shown. You will need this later.
-5. Set the domain for the login widget:
-    - Send `/setdomain` to @BotFather.
-    - Select your bot.
-    - Enter your website domain: `https://dkcoleman.github.io` (or your custom domain if you have one linked).
-    - If you want to test on localhost, you'll need to use a tunneling service like ngrok, as Telegram doesn't support `localhost` directly for the widget.
+## Required environment variables
 
-## Step 2: Deploy the Cloudflare Worker
+Set these in Vercel (Production) and in `.env.local` for local development:
 
-The worker acts as the secure gatekeeper.
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | Neon pooled connection string. Without it the CMS cannot read or write, and public pages show sample content. |
+| `ADMIN_PASSWORD` | The password you type at `/admin/login`. |
+| `ADMIN_SECRET` | A long random string that signs the admin session cookie. If unset, the app falls back to `JWT_SECRET`; if neither is set, admin auth is disabled and login fails. |
 
-1. Navigate to the worker directory:
+Generate a secret with:
 
-    ```bash
-    cd worker
-    ```
+```bash
+openssl rand -hex 32
+```
 
-2. Login to Cloudflare (one-time setup):
+## Signing in
 
-    ```bash
-    npx wrangler login
-    ```
+1. Go to `https://dkcoleman.com/admin` (or `http://localhost:3000/admin` in dev). There is also a low-key "Admin" link in the site footer.
+2. If you are not signed in, you are redirected to `/admin/login`.
+3. Enter `ADMIN_PASSWORD` and submit. On success you land on the dashboard.
+4. To sign out, use "Log out" in the sidebar. This clears the `dk_admin` cookie.
 
-3. Set your secrets. Run these commands and paste the values when prompted:
-    - **Bot Token** (from Step 1):
+If everyone is locked out, the cause is almost always that `ADMIN_PASSWORD` or `ADMIN_SECRET` was changed or is missing. See `docs/RUNBOOKS.md` -> Rotate secrets.
 
-      ```bash
-      npx wrangler secret put BOT_TOKEN
-      ```
+## Managing content
 
-    - **JWT Secret** (generate a random long string):
+The dashboard lists every content collection with a count. Click one to see its rows, then click a row to edit it, or use **New** to create one. The collections are defined in `lib/cms/schema.ts`:
 
-      ```bash
-      npx wrangler secret put JWT_SECRET
-      ```
+| Collection | What it is |
+|------------|-----------|
+| Blog posts | `/blog` articles. `Content` is Markdown. Word count and reading time are computed automatically on save. |
+| Real estate | `/real-estate` listings (for sale and for rent). See below. |
+| Projects | `/projects` entries. |
+| Resources | `/resources` link library. |
+| About sections | Blocks on the About page, ordered by the `Order` field. |
+| Resume narrative | Ordered narrative blocks on the resume. |
+| Resume | The resume body. |
 
-    - **GitHub Token** (Personal Access Token with `repo` scope):
+Editing notes that apply to every collection:
 
-      ```bash
-      npx wrangler secret put GITHUB_TOKEN
-      ```
+- **Publishing:** collections with a **Published** checkbox (blog posts, listings, projects, resources) only appear on the public site when it is checked. Leave it unchecked to keep a draft.
+- **Featured:** the **Featured** checkbox pins an item to the top of its list.
+- **Tags / Features / Photos / Categories:** these are list fields. Enter values comma-separated (for example `Faith, Growth, Business`). They are stored as JSON arrays.
+- **Markdown fields:** blog content, listing descriptions, about and resume sections accept Markdown.
+- **Dates:** enter ISO dates (for example `2025-01-14`).
+- **Delete:** the edit screen has a Delete button. Deletes are immediate and permanent, so use care.
 
-4. Set your Admin ID and Repo details in `wrangler.toml` (or via vars if you prefer not to commit them, but `wrangler.toml` [vars] are for non-secrets).
-    - Open `worker/wrangler.toml` and set `ALLOWED_USER_ID` to your Telegram ID.
-    - To find your Telegram ID, message @userinfobot on Telegram.
-    - Update `GITHUB_REPO_OWNER` and `GITHUB_REPO_NAME` in `worker/index.ts` or add them as vars in `wrangler.toml` if you prefer to externalize them.
-    *(Note: The current `index.ts` expects them in `Env` interface. It's easiest to hardcode them in `wrangler.toml` implementation or code if they aren't secrets.)*
+Saving redirects back to the collection list. Changes are written straight to Neon.
 
-    **Recommended Update to `worker/wrangler.toml`**:
+## Adding a Real Estate listing
 
-    ```toml
-    [vars]
-    ALLOWED_USER_ID = "12345678" # Your ID
-    GITHUB_REPO_OWNER = "dkcoleman"
-    GITHUB_REPO_NAME = "dkcoleman"
-    ```
+1. From the dashboard, open **Real estate**, then click **New**.
+2. Fill in the fields:
+   - **Title** (required) and **Slug** (required). The slug is the URL path, for example `123-main-st` becomes `/real-estate/123-main-st`. Use lowercase and hyphens, and keep it unique.
+   - **For** (`kind`): `sale` or `rent`.
+   - **Status**: `active`, `pending`, `sold`, `rented`, or `off_market`. `active` and `pending` show under current listings; the others move to the closed/history section.
+   - **Price**: the sale price, or the monthly rent for a rental. Leave blank to show "Contact for price".
+   - **Address, City, State, Zip, Beds, Baths, Sq ft, Lot size, Year built**: property details, all optional.
+   - **Description**: Markdown.
+   - **Features**: comma-separated (for example `Garage, Fenced yard, New roof`).
+   - **Photos**: comma-separated image URLs. The first URL is the cover image. Host the images somewhere public and paste their URLs.
+   - **Listed date** and **Closed date**: `Closed date` is used for sold/rented history.
+   - **Featured**: pins the listing to the top.
+   - **Published**: check this to make the listing visible on `/real-estate`.
+3. Click **Create**. The listing appears at `/real-estate` (and its own page at `/real-estate/<slug>`) once **Published** is checked.
 
-5. Deploy the worker:
+To take a listing down without deleting it, either uncheck **Published** or set **Status** to `sold` / `rented` / `off_market` so it moves to the closed section.
 
-    ```bash
-    npx wrangler deploy
-    ```
+## Local development
 
-6. Note the **Worker URL** output (e.g., `https://dkcoleman-admin-auth.yourname.workers.dev`).
+```bash
+cp .env.example .env.local     # then fill in DATABASE_URL, ADMIN_PASSWORD, ADMIN_SECRET
+npm install
+npm run dev
+```
 
-## Step 3: Configure the Frontend
-
-1. Open `app/admin/page.tsx`.
-2. Update the constants at the top (or use `.env.local` for local dev, but for static export you need them at build time).
-
-    Since this is a static site on GitHub Pages, we can't hide these values, but they are public identifiers anyway.
-
-    You can create a `.env.production` file:
-
-    ```env
-    NEXT_PUBLIC_WORKER_URL=https://dkcoleman-admin-auth.yourname.workers.dev
-    NEXT_PUBLIC_TELEGRAM_BOT_NAME=dkcoleman_admin_bot
-    ```
-
-3. Or verify `app/admin/page.tsx` uses:
-
-    ```typescript
-    const WORKER_URL = process.env.NEXT_PUBLIC_WORKER_URL;
-    const BOT_NAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_NAME;
-    ```
-
-## Step 4: Build and Deploy
-
-1. Push your changes to GitHub.
-
-    ```bash
-    git add .
-    git commit -m "Add admin authentication"
-    git push
-    ```
-
-2. The GitHub Action should trigger a build.
-
-## Usage
-
-1. Go to `https://your-site.com/admin`.
-2. Click "Log in with Telegram".
-3. Accept the request in your Telegram app.
-4. You should be redirected to the Dashboard.
-5. Click "Trigger Full Rebuild" to test the connection.
-
-## Troubleshooting
-
-- **Login widget not showing?** Check if `BOT_NAME` is correct and the domain is whitelisted via @BotFather.
-- **"Invalid authentication" error?** Ensure `BOT_TOKEN` in Cloudflare secrets matches the one from @BotFather.
-- **"Unauthorized user" error?** Ensure `ALLOWED_USER_ID` matches your Telegram ID.
+Open `http://localhost:3000/admin`. Without `DATABASE_URL`, the CMS has no database to talk to and public pages render sample data.

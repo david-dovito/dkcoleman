@@ -58,7 +58,7 @@ export async function getListings(): Promise<{ active: Listing[]; past: Listing[
     try {
         const rows = (await sql`
             select * from public.listings
-            where published = true
+            where published = true and deleted_at is null
             order by featured desc, coalesce(listed_date, created_at::date) desc
         `) as Record<string, unknown>[];
         const all = rows.map(map);
@@ -66,8 +66,9 @@ export async function getListings(): Promise<{ active: Listing[]; past: Listing[
             active: all.filter((l) => ACTIVE.includes(l.status)),
             past: all.filter((l) => !ACTIVE.includes(l.status)),
         };
-    } catch {
-        return { active: [], past: [] };
+    } catch (error) {
+        console.error('Error fetching listings from Neon:', error);
+        throw error;
     }
 }
 
@@ -75,10 +76,11 @@ export async function getListingBySlug(slug: string): Promise<Listing | null> {
     const sql = getSql();
     if (!sql) return null;
     try {
-        const rows = (await sql`select * from public.listings where slug = ${slug} and published = true limit 1`) as Record<string, unknown>[];
+        const rows = (await sql`select * from public.listings where slug = ${slug} and published = true and deleted_at is null limit 1`) as Record<string, unknown>[];
         return rows.length ? map(rows[0]) : null;
-    } catch {
-        return null;
+    } catch (error) {
+        console.error(`Error fetching listing ${slug}:`, error);
+        throw error;
     }
 }
 

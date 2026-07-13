@@ -35,7 +35,10 @@ export function CmsForm({ collectionKey, id }: { collectionKey: string; id: stri
                 const v: Record<string, unknown> = {};
                 c.fields.filter((f) => !f.auto).forEach((f) => {
                     const raw = row?.[f.name];
-                    v[f.name] = Array.isArray(raw) ? raw.join(', ') : raw ?? initialValue(f);
+                    if (Array.isArray(raw)) v[f.name] = raw.join(', ');
+                    // date columns come back as an ISO datetime; the <input type=date> needs YYYY-MM-DD
+                    else if (f.type === 'date' && raw) v[f.name] = String(raw).slice(0, 10);
+                    else v[f.name] = raw ?? initialValue(f);
                 });
                 setValues(v);
                 setLoading(false);
@@ -67,10 +70,16 @@ export function CmsForm({ collectionKey, id }: { collectionKey: string; id: stri
     }
 
     async function remove() {
-        if (!confirm('Delete this item?')) return;
-        await fetch(`/api/admin/${collectionKey}/${id}`, { method: 'DELETE' });
-        router.push(`/admin/${collectionKey}`);
-        router.refresh();
+        if (!confirm(`Delete this ${c!.label.replace(/s$/, '').toLowerCase()}? It can be restored from the database if needed.`)) return;
+        setError('');
+        const res = await fetch(`/api/admin/${collectionKey}/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            router.push(`/admin/${collectionKey}`);
+            router.refresh();
+        } else {
+            const j = await res.json().catch(() => ({}));
+            setError(j.error || 'Delete failed');
+        }
     }
 
     return (
