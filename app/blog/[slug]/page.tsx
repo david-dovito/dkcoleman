@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getAllPosts } from '@/lib/blog';
 import { generatePostSVG } from '@/lib/svg-generator';
@@ -6,12 +7,37 @@ import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+// Reflect CMS edits within the hour without a redeploy.
+export const revalidate = 3600;
 
 export async function generateStaticParams() {
   const posts = await getAllPosts();
   return posts.map((post) => ({
     slug: post.slug,
   }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getPostBySlug(slug);
+  if (!post) return { title: 'Post not found' };
+  const url = `https://dkcoleman.com/blog/${slug}`;
+  const description = post.excerpt || undefined;
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title: post.title,
+      description,
+      type: 'article',
+      url,
+      publishedTime: post.date,
+      authors: post.author ? [post.author] : undefined,
+      tags: post.tags,
+    },
+    twitter: { card: 'summary_large_image', title: post.title, description },
+  };
 }
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
