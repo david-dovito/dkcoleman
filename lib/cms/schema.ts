@@ -47,7 +47,7 @@ export const COLLECTIONS: Collection[] = [
         fields: [
             { name: 'title', label: 'Title', type: 'text', required: true },
             { name: 'slug', label: 'Slug', type: 'text', required: true, help: 'URL path, e.g. the-1159-on-vision' },
-            { name: 'date', label: 'Date', type: 'text', help: 'ISO date, e.g. 2025-01-14' },
+            { name: 'date', label: 'Date', type: 'date', help: 'Publish date' },
             { name: 'excerpt', label: 'Excerpt', type: 'textarea' },
             { name: 'author', label: 'Author', type: 'text' },
             { name: 'tags', label: 'Tags', type: 'tags', help: 'The 1159, Faith, Growth, Business, Leadership, Life' },
@@ -100,7 +100,7 @@ export const COLLECTIONS: Collection[] = [
             { name: 'description', label: 'Description', type: 'markdown' },
             { name: 'url', label: 'URL', type: 'url' },
             { name: 'tech', label: 'Tech', type: 'tags' },
-            { name: 'date', label: 'Date', type: 'text' },
+            { name: 'date', label: 'Date', type: 'date' },
             { name: 'photo', label: 'Photo', type: 'url' },
             { name: 'published', label: 'Published', type: 'boolean' },
         ],
