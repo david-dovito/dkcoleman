@@ -30,6 +30,9 @@ export default function GlassCube({
   const wrapperRef = useRef<HTMLDivElement>(null);
   const cubeRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef(0);
+  const runningRef = useRef(false);
+  // Assigned by the animation effect so the pulse effect can (re)start the loop.
+  const startAnimRef = useRef<(() => void) | null>(null);
 
   const s = useRef({
     rx: 0,
@@ -48,9 +51,15 @@ export default function GlassCube({
 
   // Trigger pulse
   useEffect(() => {
-    if (pulse && !s.current.hover) {
+    if (
+      pulse &&
+      !s.current.hover &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
       s.current.pulseActive = true;
       s.current.pulsePhase = 0;
+      // Wake the animation loop if it went idle.
+      startAnimRef.current?.();
     }
   }, [pulse]);
 
@@ -69,27 +78,22 @@ export default function GlassCube({
     const wrapper = wrapperRef.current;
     if (!wrapper) return;
 
-    const onMove = (e: MouseEvent) => {
-      const rect = wrapper.getBoundingClientRect();
-      const nx = (e.clientX - rect.left) / rect.width;
-      const ny = (e.clientY - rect.top) / rect.height;
-      s.current.tRy = (nx - 0.5) * 2 * tiltMax;
-      s.current.tRx = -(ny - 0.5) * 2 * tiltMax;
+    const setTransform = () => {
+      if (cubeRef.current) {
+        cubeRef.current.style.transform =
+          `translateZ(${-depth / 2}px) rotateX(${s.current.rx}deg) rotateY(${s.current.ry}deg)`;
+      }
     };
 
-    const onEnter = () => {
-      s.current.hover = true;
-      s.current.pulseActive = false;
-    };
-    const onLeave = () => {
-      s.current.hover = false;
-      s.current.tRx = 0;
-      s.current.tRy = 0;
-    };
-
-    wrapper.addEventListener('mousemove', onMove);
-    wrapper.addEventListener('mouseenter', onEnter);
-    wrapper.addEventListener('mouseleave', onLeave);
+    // Reduced motion: render the cube flat and static - no load wobble, no pulse,
+    // no interactive tilt, and no permanent rAF loop.
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      s.current.wobbleActive = false;
+      s.current.rx = 0;
+      s.current.ry = 0;
+      setTransform();
+      return;
+    }
 
     const animate = () => {
       const st = s.current;
@@ -124,18 +128,62 @@ export default function GlassCube({
       const speed = st.hover ? 0.12 : 0.08;
       st.rx = lerp(st.rx, st.tRx, speed);
       st.ry = lerp(st.ry, st.tRy, speed);
+      setTransform();
 
-      if (cubeRef.current) {
-        cubeRef.current.style.transform =
-          `translateZ(${-depth / 2}px) rotateX(${st.rx}deg) rotateY(${st.ry}deg)`;
+      // Stop the loop once the cube is idle and has settled at its target, so
+      // five cubes don't each burn a permanent rAF loop. It restarts on interaction.
+      const settled =
+        Math.abs(st.rx - st.tRx) < 0.01 && Math.abs(st.ry - st.tRy) < 0.01;
+      if (!st.hover && !st.wobbleActive && !st.pulseActive && settled) {
+        st.rx = st.tRx;
+        st.ry = st.tRy;
+        setTransform();
+        runningRef.current = false;
+        return;
       }
 
       frameRef.current = requestAnimationFrame(animate);
     };
 
-    frameRef.current = requestAnimationFrame(animate);
+    const startAnim = () => {
+      if (!runningRef.current) {
+        runningRef.current = true;
+        frameRef.current = requestAnimationFrame(animate);
+      }
+    };
+    startAnimRef.current = startAnim;
+
+    const onMove = (e: MouseEvent) => {
+      const rect = wrapper.getBoundingClientRect();
+      const nx = (e.clientX - rect.left) / rect.width;
+      const ny = (e.clientY - rect.top) / rect.height;
+      s.current.tRy = (nx - 0.5) * 2 * tiltMax;
+      s.current.tRx = -(ny - 0.5) * 2 * tiltMax;
+      startAnim();
+    };
+
+    const onEnter = () => {
+      s.current.hover = true;
+      s.current.pulseActive = false;
+      startAnim();
+    };
+    const onLeave = () => {
+      s.current.hover = false;
+      s.current.tRx = 0;
+      s.current.tRy = 0;
+      startAnim();
+    };
+
+    wrapper.addEventListener('mousemove', onMove);
+    wrapper.addEventListener('mouseenter', onEnter);
+    wrapper.addEventListener('mouseleave', onLeave);
+
+    // Kick off the initial load wobble.
+    startAnim();
 
     return () => {
+      runningRef.current = false;
+      startAnimRef.current = null;
       cancelAnimationFrame(frameRef.current);
       wrapper.removeEventListener('mousemove', onMove);
       wrapper.removeEventListener('mouseenter', onEnter);
