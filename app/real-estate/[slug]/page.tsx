@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Mail, MapPin } from 'lucide-react';
 import { getListingBySlug, priceLabel } from '@/lib/listings';
 
 export const dynamic = 'force-dynamic';
@@ -30,6 +31,13 @@ export default async function ListingDetail({ params }: { params: Promise<{ slug
     const loc = [l.address, [l.city, l.state].filter(Boolean).join(', '), l.zip].filter(Boolean).join(' · ');
     const isPast = !['active', 'pending'].includes(l.status);
 
+    const listingUrl = `https://dkcoleman.com/real-estate/${slug}`;
+    const mailtoHref = `mailto:david@dovito.com?subject=${encodeURIComponent(`Inquiry: ${l.title}`)}&body=${encodeURIComponent(`I'm interested in ${l.title} (${listingUrl}).`)}`;
+    const fullAddress = [l.address, l.city, l.state, l.zip].filter(Boolean).join(', ');
+    const mapHref = l.address
+        ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(fullAddress)}`
+        : null;
+
     return (
         <div className="container mx-auto px-4 py-12 max-w-4xl">
             <Link href="/real-estate" className="text-sm text-muted-foreground hover:text-foreground">← Real Estate</Link>
@@ -45,11 +53,32 @@ export default async function ListingDetail({ params }: { params: Promise<{ slug
             <div className="text-xl font-semibold mt-1">{priceLabel(l)}</div>
             {loc && <div className="text-muted-foreground mt-1">{loc}</div>}
 
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+                <a
+                    href={mailtoHref}
+                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+                >
+                    <Mail className="h-4 w-4" />
+                    Inquire about this property
+                </a>
+                {mapHref && (
+                    <a
+                        href={mapHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-sm font-medium transition-colors hover:border-foreground/30 hover:bg-muted"
+                    >
+                        <MapPin className="h-4 w-4" />
+                        View on map
+                    </a>
+                )}
+            </div>
+
             {l.photos.length > 0 && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-6">
                     {l.photos.map((p, i) => (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img key={i} src={p} alt={`${l.title} photo ${i + 1}`} className="w-full rounded-xl border object-cover" />
+                        <img key={i} src={p} alt={`${l.title} photo ${i + 1}`} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" className="w-full rounded-xl border object-cover" />
                     ))}
                 </div>
             )}

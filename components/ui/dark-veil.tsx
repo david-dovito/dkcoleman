@@ -102,7 +102,12 @@ export default function DarkVeil({
   const ref = useRef<HTMLCanvasElement>(null);
   useEffect(() => {
     const canvas = ref.current as HTMLCanvasElement;
-    const parent = canvas.parentElement as HTMLElement;
+    if (!canvas) return;
+
+    // Skip the WebGL background entirely on coarse-pointer / mobile devices for performance.
+    if (window.matchMedia('(hover: none)').matches) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const renderer = new Renderer({
       dpr: Math.min(window.devicePixelRatio, 2),
@@ -131,9 +136,15 @@ export default function DarkVeil({
     const resize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      // Set internal rendering resolution
-      renderer.setSize(w, h);
-      program.uniforms.uResolution.value.set(w, h);
+      // Render at a reduced internal resolution for performance, but keep the
+      // canvas visually full-screen. uResolution matches the render size so the
+      // shader's normalized UVs are unchanged (only sharpness scales).
+      const renderW = Math.max(1, Math.round(w * resolutionScale));
+      const renderH = Math.max(1, Math.round(h * resolutionScale));
+      renderer.setSize(renderW, renderH);
+      canvas.style.width = '100vw';
+      canvas.style.height = '100vh';
+      program.uniforms.uResolution.value.set(renderW, renderH);
     };
 
     window.addEventListener('resize', resize);
@@ -141,8 +152,9 @@ export default function DarkVeil({
 
     const start = performance.now();
     let frame = 0;
+    let running = false;
 
-    const loop = () => {
+    const renderFrame = () => {
       program.uniforms.uTime.value = ((performance.now() - start) / 1000) * speed;
       program.uniforms.uHueShift.value = hueShift;
       program.uniforms.uNoise.value = noiseIntensity;
@@ -150,14 +162,43 @@ export default function DarkVeil({
       program.uniforms.uScanFreq.value = scanlineFrequency;
       program.uniforms.uWarp.value = warpAmount;
       renderer.render({ scene: mesh });
+    };
+
+    const loop = () => {
+      renderFrame();
       frame = requestAnimationFrame(loop);
     };
 
-    loop();
+    const startLoop = () => {
+      if (!running && !reduceMotion) {
+        running = true;
+        frame = requestAnimationFrame(loop);
+      }
+    };
+
+    const stopLoop = () => {
+      running = false;
+      cancelAnimationFrame(frame);
+    };
+
+    // Pause the animation loop while the tab is hidden.
+    const onVisibility = () => {
+      if (document.hidden) stopLoop();
+      else startLoop();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+
+    if (reduceMotion) {
+      // Reduced motion: paint a single static frame, no animation loop.
+      renderFrame();
+    } else {
+      startLoop();
+    }
 
     return () => {
-      cancelAnimationFrame(frame);
+      stopLoop();
       window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', onVisibility);
     };
   }, [hueShift, noiseIntensity, scanlineIntensity, speed, scanlineFrequency, warpAmount, resolutionScale]);
   return (

@@ -19,8 +19,15 @@ const CustomCursor = () => {
     }, []);
 
     useEffect(() => {
-        // Hide on touch devices or devices without hover
-        if (window.matchMedia("(any-hover: none)").matches) return;
+        // Skip the JS cursor on touch/coarse-pointer devices, and whenever the user
+        // has requested reduced motion (they keep the native OS cursor instead).
+        if (
+            window.matchMedia("(any-hover: none)").matches ||
+            !window.matchMedia("(hover: hover) and (pointer: fine)").matches ||
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ) {
+            return;
+        }
 
         const dot = cursorDotRef.current;
         const ring = cursorRingRef.current;

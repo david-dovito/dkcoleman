@@ -23,7 +23,7 @@ function ListingCard({ l, past = false }: { l: Listing; past?: boolean }) {
             <div className="aspect-[3/2] bg-muted relative overflow-hidden">
                 {l.photos[0] ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={l.photos[0]} alt={l.title} className={`h-full w-full object-cover ${past ? 'grayscale opacity-80' : ''}`} />
+                    <img src={l.photos[0]} alt={l.title} loading="lazy" decoding="async" className={`h-full w-full object-cover ${past ? 'grayscale opacity-80' : ''}`} />
                 ) : (
                     <div className="h-full w-full flex items-center justify-center text-muted-foreground text-sm">No photo</div>
                 )}

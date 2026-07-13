@@ -82,11 +82,31 @@
       sans-serif;
   }
 
-  /* Only hide cursor on devices that support hover (desktop/mouse) */
-  @media (hover: hover) and (pointer: fine) {
+  /* Only hide the OS cursor for the JS custom cursor on hover-capable, fine-pointer
+     devices that have NOT requested reduced motion. Reduced-motion users (and touch
+     devices) keep the native cursor, since the custom cursor is disabled for them. */
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     body:not(.popup-open),
     body:not(.popup-open) * {
       cursor: none !important;
+    }
+  }
+
+  /* Safety net: when the custom cursor is inactive (touch or reduced motion),
+     keep interactive elements pointing at a usable native cursor. */
+  @media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+    a,
+    button,
+    [role='button'],
+    label,
+    summary,
+    select {
+      cursor: pointer;
+    }
+    input,
+    textarea,
+    [contenteditable='true'] {
+      cursor: text;
     }
   }
 
@@ -110,5 +130,23 @@
   }
   ::-webkit-scrollbar-thumb:hover {
     background-color: rgba(88, 129, 87, 0.5);
+  }
+}
+
+/* Reduced motion: strip perceptible animation and transitions for users who ask
+   for it. Durations collapse to near-zero (rather than `none`) so animations that
+   rely on fill-mode still land on their final frame, and infinite loops are capped
+   to a single iteration so they effectively pause. JS-driven rAF/WebGL loops
+   (dark-veil, glass-cube, custom cursor) additionally check this preference in code. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }
