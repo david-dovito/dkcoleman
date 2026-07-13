@@ -1,0 +1,37 @@
+name: DB backup
+
+# Nightly logical backup to off-Neon object storage. Activates once the repo
+# secrets are set (BACKUP_BUCKET + AWS_ACCESS_KEY_ID/SECRET + optional
+# S3_ENDPOINT for Cloudflare R2). Until then the job no-ops.
+on:
+  schedule:
+    - cron: '0 8 * * *' # 08:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Guard on config
+        id: guard
+        run: |
+          if [ -z "${{ secrets.BACKUP_BUCKET }}" ]; then
+            echo "Backup secrets not set; skipping."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install pg_dump
+        if: steps.guard.outputs.run == 'true'
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - name: Backup
+        if: steps.guard.outputs.run == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_BUCKET: ${{ secrets.BACKUP_BUCKET }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+        run: bash scripts/backup-db.sh
