@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "export": "next build"
+    "export": "next build",
+    "test": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -16,21 +17,17 @@
   "dependencies": {
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@next/mdx": "^16.0.3",
     "@neondatabase/serverless": "^1.0.2",
+    "@next/mdx": "^16.0.3",
     "@next/third-parties": "^16.0.4",
-    "@notionhq/client": "^2.3.0",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-separator": "^1.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tabs": "^1.1.13",
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
     "@tailwindcss/typography": "^0.5.19",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
-    "@types/three": "^0.182.0",
     "autoprefixer": "^10.4.22",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -42,7 +39,6 @@
     "lucide-react": "^0.553.0",
     "next": "^16.1.5",
     "next-themes": "^0.4.6",
-    "notion-to-md": "^3.1.9",
     "ogl": "^1.0.11",
     "postcss": "^8.5.6",
     "react": "^19.2.0",
@@ -52,10 +48,10 @@
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^3.4.18",
     "tailwindcss-animate": "^1.0.7",
-    "three": "^0.182.0",
     "typescript": "^5.9.3"
   },
   "devDependencies": {
-    "shadcn": "^3.6.2"
+    "shadcn": "^3.6.2",
+    "vitest": "^2.1.9"
   }
 }
