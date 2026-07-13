@@ -12,7 +12,13 @@ export const ADMIN_COOKIE = 'dk_admin';
 const MAX_AGE = 60 * 60 * 24 * 14; // 14 days
 
 function secret(): string {
-    return process.env.ADMIN_SECRET || process.env.JWT_SECRET || 'dev-insecure-secret-change-me';
+    const s = process.env.ADMIN_SECRET || process.env.JWT_SECRET;
+    if (!s) {
+        // Fail loudly rather than silently signing admin sessions with a known
+        // public string. Set ADMIN_SECRET (or JWT_SECRET) in every environment.
+        throw new Error('ADMIN_SECRET (or JWT_SECRET) is not set; admin auth is disabled');
+    }
+    return s;
 }
 
 const enc = new TextEncoder();
